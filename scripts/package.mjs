@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { npmCli, isolatedEnv, run } from './package-tools.mjs';
 
-export const runtimeFiles = ['cli', 'context', 'doctor', 'git', 'handoff', 'managed', 'safety', 'sync'].map(name => `dist/${name}.js`);
+export const runtimeFiles = ['cli', 'codex', 'context', 'doctor', 'git', 'handoff', 'managed', 'safety', 'session', 'sync'].map(name => `dist/${name}.js`);
 export const packageFiles = [...runtimeFiles, 'package.json', 'README.md', 'LICENSE', 'SECURITY.md', 'THIRD_PARTY_NOTICES.md'].sort();
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
