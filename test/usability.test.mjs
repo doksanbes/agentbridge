@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, rm, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -22,6 +22,17 @@ function run(root, args, expected = 0) {
 }
 const get = (root, name) => readFile(path.join(root, name), 'utf8');
 const put = (root, name, text) => writeFile(path.join(root, name), text);
+
+test('missing project explains recovery without creating a directory or echoing its path', async t => {
+  const parent = await folder(t);
+  const missing = path.join(parent, 'missing project ü');
+  const result = spawnSync(process.execPath, [cli, 'init', '--project', missing], { encoding: 'utf8', windowsHide: true });
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /Project directory does not exist\. Create it first, or pass --project <existing-directory>\./);
+  assert.ok(!result.stderr.includes(missing));
+  await assert.rejects(lstat(missing), { code: 'ENOENT' });
+});
 
 test('managed section preserves existing user bytes before and after on every update', () => {
   const user = '\ufeff# Team instructions\r\nKeep the API stable.\r\n@existing/team.md\r\n';
