@@ -16,9 +16,9 @@ Use trusted Node and Git binaries on PATH and a trusted local filesystem. Do not
 
 ## Reporting
 
-The intended maintainer account is `doksanbes`. Use [GitHub private vulnerability reporting](https://github.com/doksanbes/agentbridge/security/advisories/new) once the repository exists and private reporting is enabled. Select **Report a vulnerability** from the repository's Security/Advisories page. This sends a private report to repository maintainers, not a public issue.
+The maintainer account is `doksanbes`. Use [GitHub private vulnerability reporting](https://github.com/doksanbes/agentbridge/security/advisories/new). Select **Report a vulnerability** from the repository's Security/Advisories page. This sends a private report to repository maintainers, not a public issue.
 
-**Before initial publication:** this channel is not yet active. The owner must create the approved empty repository, enable private vulnerability reporting, verify that it is enabled, and subscribe to security notifications before uploading code. Adding this policy alone does not enable the feature. The exact proposed setup commands are in [PUBLICATION_PLAN.md](docs/PUBLICATION_PLAN.md); none has been executed.
+Private vulnerability reporting was verified enabled on October 29, 2026. If it becomes unavailable, use the fallback below. Distribution preparation does not itself publish a package or release.
 
 If the form is unavailable, request a private contact from the maintainer without including vulnerability details. A public issue may contain only that contact request. Do not post secrets, exploit details, private paths or real user data publicly. No unverified email address is provided here.
 
@@ -26,4 +26,4 @@ In the private report, include the version/commit, operating system, Node/Git ve
 
 The maintainer should acknowledge reports within seven days and provide a triage/status update within thirty days where possible; these are best-effort targets, not guarantees. Keep reproduction, remediation and coordination in the private advisory until a fix or mitigation and a mutually agreed disclosure plan are ready. Do not promise a fixed remediation deadline before triage. Ask the reporter whether they want public credit before naming them.
 
-See [architecture](docs/ARCHITECTURE.md) for detailed trust boundaries and recovery behavior. See [GitHub's setup documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository) for enabling private reporting and notifications.
+See [architecture](https://github.com/doksanbes/agentbridge/blob/main/docs/ARCHITECTURE.md) for detailed trust boundaries and recovery behavior. See [GitHub's setup documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository) for enabling private reporting and notifications.

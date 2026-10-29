@@ -2,6 +2,8 @@
 
 ## 0.1.0 — Unreleased
 
+- Prepare an unpublished, repeatable 13-file npm-format archive with no runtime dependencies or installation hooks; validate isolated offline installation, command shims and handoff safety on all CI platforms. Keep npm publication disabled.
+
 - Add a clone-to-first-handoff walkthrough, a realistic Codex-to-Claude example, and conflict/recovery guidance; distinguish hosted CI from actual agent-loading checks.
 - Explain missing project directories with an actionable CLI error instead of a raw filesystem path.
 

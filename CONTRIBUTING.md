@@ -11,6 +11,9 @@ pnpm typecheck
 pnpm build
 pnpm test
 pnpm validate:workflow
+node scripts/audit-publication.mjs
+pnpm package:build
+pnpm validate:package
 ```
 
 Tests create disposable synthetic Git repositories in the operating system temporary directory. Git must be on PATH. They never operate on the checkout's Git history or use real agent sessions. Windows link tests use directory junctions, avoiding Developer Mode requirements. Restricted execution environments may need permission for Git fixture writes and atomic file replacements.

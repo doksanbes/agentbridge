@@ -8,12 +8,14 @@
   "repository": { "type": "git", "url": "https://github.com/doksanbes/agentbridge.git" },
   "engines": { "node": ">=22.18.0" },
   "bin": { "agentbridge": "dist/cli.js" },
-  "files": ["dist", "README.md", "LICENSE", "SECURITY.md"],
+  "files": ["dist/cli.js", "dist/context.js", "dist/doctor.js", "dist/git.js", "dist/handoff.js", "dist/managed.js", "dist/safety.js", "dist/sync.js", "README.md", "LICENSE", "SECURITY.md", "THIRD_PARTY_NOTICES.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test test/*.test.mjs",
     "validate:workflow": "node scripts/validate-workflow.mjs",
+    "package:build": "pnpm build && node scripts/package.mjs",
+    "validate:package": "node scripts/validate-package.mjs",
     "check": "pnpm typecheck && pnpm build && pnpm test",
     "start": "node dist/cli.js"
   },

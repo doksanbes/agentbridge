@@ -8,8 +8,10 @@ README.md
 SECURITY.md
 THIRD_PARTY_NOTICES.md
 docs/ARCHITECTURE.md
+docs/DISTRIBUTION.md
 docs/INITIAL_COMMIT_MESSAGE.txt
 docs/NEXT_MILESTONE.md
+docs/PACKAGE_README.md
 docs/PROVENANCE.md
 docs/PUBLICATION_AUDIT.md
 docs/PUBLICATION_PLAN.md
@@ -33,7 +35,10 @@ pnpm-lock.yaml
 pnpm-workspace.yaml
 publication-files.txt
 scripts/audit-publication.mjs
+scripts/package-tools.mjs
+scripts/package.mjs
 scripts/validate-codex.mjs
+scripts/validate-package.mjs
 scripts/validate-workflow.mjs
 src/cli.ts
 src/context.ts
@@ -45,6 +50,7 @@ src/safety.ts
 src/sync.ts
 test/doctor.test.mjs
 test/integration.test.mjs
+test/package.test.mjs
 test/safety.test.mjs
 test/usability.test.mjs
 tsconfig.json
