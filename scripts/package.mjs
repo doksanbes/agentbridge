@@ -80,14 +80,15 @@ export async function buildPackage(root) {
     const archive = path.join(destination, `${staged.name}-${staged.version}.tgz`);
     assert.equal(result.filename, path.basename(archive));
     const bytes = await readFile(archive);
-    reports.push({ bytes, sha256: sha256(bytes) });
+    reports.push({ bytes, sha256: sha256(bytes), modes: result.files.map(f => ({ path: f.path, mode: f.mode })) });
   }
   assert.equal(reports[0].sha256, reports[1].sha256, 'Repeated archive builds differ.');
   const filename = `${staged.name}-${staged.version}.tgz`;
   const archive = path.join(output, filename);
   await writeFile(archive, reports[0].bytes);
   await writeFile(archive + '.sha256', `${reports[0].sha256}  ${filename}\n`);
-  const report = { filename, archive, sha256: reports[0].sha256, reproducible: true, node: process.version, npm: npmVersion, files: staged.files };
+  const report = { filename, archive, sha256: reports[0].sha256, contentSha256: sha256(JSON.stringify(staged.files)),
+    modes: reports[0].modes, reproducible: true, node: process.version, npm: npmVersion, os: process.platform, files: staged.files };
   const { archive: _localPath, ...publicManifest } = report;
   await writeFile(archive + '.manifest.json', JSON.stringify(publicManifest, null, 2) + '\n');
   return report;

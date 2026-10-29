@@ -83,6 +83,7 @@ try {
   await cli(['sync'], 2); assert.equal(await readFile(path.join(project, 'CLAUDE.md'), 'utf8'), edited);
   assert.equal(requests, 0, 'Package validation attempted network access.');
   const result = { node: process.version, npm: report.npm, os: process.platform, archiveSha256: report.sha256,
+    contentSha256: report.contentSha256, archiveModes: report.modes,
     packageFiles: inventory, repeatedPackIdentical: report.reproducible, installedShim: true, npmExec: true,
     freshCache: true, runtimeDependencies: 0, networkRequests: requests, workflow: 'init/discover/handoff/preview/approval/sync/status/doctor/conflict passed' };
   await writeFile(path.join(root, '.cache/package-validation.json'), JSON.stringify(result, null, 2) + '\n');
