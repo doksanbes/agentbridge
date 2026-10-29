@@ -2,6 +2,8 @@
 
 ## 0.1.0 — Unreleased
 
+- Add read-only `doctor` diagnostics for Node/project/Git setup, context, saved notes, sync locks and output drift, with human-readable next steps and versioned JSON. No automatic fixes or agent probes.
+
 - Resolve project-root aliases before filesystem containment checks, fixing false path-escape failures on Windows/macOS while retaining descendant-link, hard-link and write protections.
 
 - Preserve existing user instructions outside explicit managed sections, with strict marker validation and conservative migration of legacy generated files.
