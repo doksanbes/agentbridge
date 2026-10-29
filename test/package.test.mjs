@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, copyFile, writeFile, readFile, readdir, rm, symlink, link } from 'node:fs/promises';
+import { mkdtemp, mkdir, copyFile, writeFile, readFile, readdir, lstat, rm, symlink, link } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +30,7 @@ test('package staging is exact, strips development metadata/hooks and excludes d
   const manifest = JSON.parse(await readFile(path.join(stage, 'package.json'), 'utf8'));
   assert.equal(manifest.scripts, undefined); assert.equal(manifest.devDependencies, undefined);
   assert.equal(manifest.private, true);
+  if (process.platform !== 'win32') for (const file of packageFiles) assert.equal((await lstat(path.join(stage, file))).mode & 0o777, 0o644);
   assert.deepEqual((await readdir(path.join(stage, 'dist'))).sort(), packageFiles.filter(f => f.startsWith('dist/')).map(f => path.basename(f)).sort());
   for (const file of packageFiles) assert.ok(!(await readFile(path.join(stage, file), 'utf8')).includes('SYNTHETIC_PRIVATE_CANARY'));
 });

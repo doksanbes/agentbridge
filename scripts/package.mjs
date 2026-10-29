@@ -56,8 +56,10 @@ export async function stagePackage(root, stage) {
   for (const file of packageFiles) {
     await mkdir(path.dirname(path.join(stage, file)), { recursive: true });
     const bytes = contents.get(file);
-    await writeFile(path.join(stage, file), bytes, { flag: 'wx', mode: file === 'dist/cli.js' ? 0o755 : 0o644 });
-    if (file === 'dist/cli.js') await chmod(path.join(stage, file), 0o755);
+    await writeFile(path.join(stage, file), bytes, { flag: 'wx', mode: 0o644 });
+    // npm's bin installation creates executable shims and fixes the target mode.
+    // Normalize archive inputs instead of inheriting host execute bits/umask.
+    await chmod(path.join(stage, file), 0o644);
     files.push({ path: file, bytes: bytes.length, sha256: sha256(bytes) });
   }
   return { name: source.name, version: source.version, files };
