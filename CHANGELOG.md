@@ -2,6 +2,9 @@
 
 ## 0.1.0 — Unreleased
 
+- Add a clone-to-first-handoff walkthrough, a realistic Codex-to-Claude example, and conflict/recovery guidance; distinguish hosted CI from actual agent-loading checks.
+- Explain missing project directories with an actionable CLI error instead of a raw filesystem path.
+
 - Resolve project-root aliases before filesystem containment checks, fixing false path-escape failures on Windows/macOS while retaining descendant-link, hard-link and write protections.
 
 - Preserve existing user instructions outside explicit managed sections, with strict marker validation and conservative migration of legacy generated files.

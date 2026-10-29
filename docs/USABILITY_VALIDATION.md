@@ -1,6 +1,25 @@
 # Usability and end-to-end validation
 
-Validated locally on Windows on October 29, 2026. This report supersedes the initial 26-test milestone while preserving its [historical record](VALIDATION.md). No AgentBridge repository was created, no remote was configured, and nothing was pushed, published or released. Only temporary synthetic Git fixtures were initialized. No paid APIs, account-backed prompts, subscriptions or purchased services were used.
+## Fresh developer follow-up — October 29, 2026
+
+After PR #1 merged, a fresh public clone was checked out at `c999a5ffe5e42f413fcc0c665040324f88624423` in a new operating-system temporary directory with spaces and Unicode in its path. The [post-merge main CI run](https://github.com/doksanbes/agentbridge/actions/runs/40848570913) passed all six Windows/macOS/Linux × Node 22.18.0/24 jobs, including typecheck, build, 39 tests and the simulated workflow. No expected job or validation step was missing or failed.
+
+The fresh clone installed frozen dependencies with lifecycle scripts disabled and built successfully. A separate synthetic ParcelKit project exercised first-time initialization, tracked discovery, manual Codex-to-Claude notes, previews and all three generated targets. Existing CRLF team guidance survived sync. Unapproved writes and managed-section edits were blocked; named approval, explicit note replacement and restoration of a known-good damaged-marker file recovered the workflow. The independent six-direction validator also passed, ending with seven passing parser tests.
+
+Observed first-user friction prompted focused changes:
+
+- The README assumed an existing checkout and still said hosted CI had never run. It now includes the clone command, tested prerequisites and observed CI evidence.
+- Saving a note, distributing it and starting the receiving session were separate steps that needed explanation. The walkthrough now joins them in a realistic Codex-to-Claude example and explains that route labels do not select output files.
+- Empty tracked discovery, repeated-note protection, overwrite approval and malformed-marker recovery were correct but easy to misunderstand. A recovery table explains each case without bypassing safeguards.
+- A missing project directory returned a raw `ENOENT` path. The CLI now explains how to select or create an existing project directory; a regression checks exit code 2, no directory creation and no path disclosure. Filesystem safety checks are unchanged.
+
+Actual agent availability was checked again: Codex `0.165.0-alpha.1.2` was installed; Claude Code and Gemini CLI were not found on PATH or checked standard installation paths. The fresh clone's Codex validator verified purpose, constraints, saved handoff and latest next step through real offline prompt inspection with isolated configuration and **zero inference requests**. No account-backed session or model behavior was tested. Claude/Gemini loading remains **unverified**; simulated output is not a substitute.
+
+After the onboarding changes, all **40 tests passed with zero failures or skips** locally on Windows under Node 22.18.0 and 24.22.1. Typechecking and builds passed on both versions. The updated six-direction workflow passed on Node 24, ending with seven passing parser tests. The publication preflight still found exactly 47 source files and zero unreviewed findings; no dependencies, filesystem checks or approval rules changed.
+
+## Earlier pre-publication validation record
+
+The remainder records the earlier local milestone, before repository creation and PR #1; its test counts and publication status are historical. It superseded the initial 26-test milestone while preserving its [historical record](VALIDATION.md). At that point no AgentBridge repository had been created and nothing had been pushed, published or released. No paid APIs, account-backed prompts, subscriptions or purchased services were used.
 
 ## Problems observed and fixes
 

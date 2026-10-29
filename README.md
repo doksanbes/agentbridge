@@ -4,65 +4,117 @@ Carry reviewed project context between Codex, Claude Code, and Gemini CLI, entir
 
 AgentBridge combines one editable Markdown context file, explicit session notes, and filtered Git facts. It generates the three agents' project instruction files and reports drift before replacing anything. It never calls an AI model or reads chat histories.
 
-**Status: experimental, 0.1.0 (unreleased).** Prepared as the experimental source tree for `doksanbes/agentbridge`. There is no published npm package or release. The package is marked `private` to prevent accidental npm publication. This independent project is not affiliated with OpenAI, Anthropic, or Google.
+**Status: experimental, 0.1.0 (unreleased).** For developers who switch coding agents mid-task and want the next session to know what is done, what to do next, and what is blocked. You review the facts; AgentBridge writes them into `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`, while preserving existing user instructions outside its managed section.
 
-AgentBridge's focus is a small, inspectable handoff: durable rules, explicit completed/pending/blocked work, and filtered Git facts, without capturing conversations or managing global agent configuration. Rule synchronization itself is already served by established tools; see the [competitive research](docs/RESEARCH.md).
+**Limits:** it does not transfer conversations, infer completed work, launch agents, or resolve contradictory instructions. There is no published npm package. This independent project is not affiliated with OpenAI, Anthropic, or Google.
 
-**Validation limits:** 35 tests passed locally on Windows with Node 22.18.0 and 24.22.1. Real Codex instruction loading was checked offline; **Claude Code and Gemini CLI instruction loading remain unverified**. No model behavior was tested. Linux/macOS CI is configured but has not run yet. Treat the project as experimental.
+## Install from source
 
-## Run locally
-
-Requirements: Node.js 22.18+ and pnpm 11.25.0. Git is optional for the basic context workflow and required for discovery/progress. After installing development dependencies and building once, the compiled CLI needs only Node.js; it has no runtime packages or network access.
-
-The supported/tested Node lines are 22 (minimum 22.18.0) and 24. Other versions satisfying the package's minimum engine range have not been validated. A first development installation downloads ordinary open-source packages; no agent account, subscription, API key or paid API is required. There is no published npm package to install.
-
-From a source checkout, install the pinned package manager if needed, then build:
+Requirements: Git, Node.js **22.18+ or 24**, and pnpm **11.25.0**. These are the tested Node lines; other versions have not been validated. Install Node and Git first, then run:
 
 ```sh
+git clone https://github.com/doksanbes/agentbridge.git
+cd agentbridge
+# Skip this command if pnpm 11.25.0 is already installed.
 npm install --global pnpm@11.25.0 --ignore-scripts
 pnpm install --frozen-lockfile --ignore-scripts
 pnpm build
 node dist/cli.js --help
 ```
 
-Use the absolute path to this checkout's `dist/cli.js` when working in a different repository. All examples below run from this checkout and select a separate project explicitly. Quote paths containing spaces on every platform.
+The first installation downloads open-source development packages. After building, the CLI runs offline using only Node.js, with zero runtime packages. **AgentBridge requires no API key, agent account, subscription, or paid API.** Running a receiving agent is a separate activity with that tool's own requirements. The package is marked `private` to prevent accidental npm publication.
 
-```sh
-node dist/cli.js init --project "../my-project"
-# Edit ../my-project/.agentbridge/context.md with real project guidance.
-node dist/cli.js discover --project "../my-project"
-node dist/cli.js sync --project "../my-project" --dry-run
-node dist/cli.js sync --project "../my-project"
-```
+## First handoff: Codex to Claude Code
 
-The first sync creates `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` if absent. **Every replacement of an existing instruction file requires file-specific approval, even if AgentBridge created it.** Run the preview, compare with the existing files, then approve exactly the names you reviewed:
+Run these commands from the AgentBridge checkout. Replace `../my-project` with the **existing project root** containing your code, not the AgentBridge checkout. Quote paths containing spaces. On Windows, an absolute path such as `"D:\work\my project"` also works. If running from another directory, use the absolute path to AgentBridge's `dist/cli.js`.
+
+1. Initialize the project and inspect its tracked filenames:
+
+   ```sh
+   node dist/cli.js init --project "../my-project"
+   node dist/cli.js discover --project "../my-project"
+   ```
+
+   Edit `../my-project/.agentbridge/context.md` in your editor. Replace the template with the project's purpose, verified test commands, constraints and current goal. Discovery lists safe tracked paths; it does not write the context for you or read source contents. A new repository with no tracked files produces an empty inventory.
+
+2. Record what actually happened in the previous session. For example, in a ParcelKit postal-code parser, Codex finished empty-input validation and two tests passed. The next session needs Unicode coverage, while a carrier sandbox is unavailable:
+
+   ```sh
+   node dist/cli.js progress --project "../my-project"
+   node dist/cli.js handoff --project "../my-project" --save --from codex --to claude --done "Reject empty postal codes; two tests passed" --next "Add a full-width Unicode postal-code fixture; run npm test" --blocked "Carrier sandbox unavailable; use offline fixtures only"
+   ```
+
+   These notes are supplied by you, not inferred from Git or chat history. Use the commands and results you actually verified in your project. `handoff --save` writes `.agentbridge/handoff.md`; **sync is still needed to distribute it**.
+
+3. Review the full generated files before applying them:
+
+   ```sh
+   node dist/cli.js sync --project "../my-project" --dry-run
+   node dist/cli.js sync --project "../my-project"
+   node dist/cli.js status --project "../my-project"
+   ```
+
+   This succeeds when the three instruction files are absent. If any already exist, sync stops and prints the exact filenames needing approval. After reviewing the preview, approve only those names. For example, if only `CLAUDE.md` already exists:
+
+   ```sh
+   node dist/cli.js sync --project "../my-project" --approve-overwrite CLAUDE.md
+   ```
+
+4. Review `CLAUDE.md` in the project, then start a new Claude Code session **from that project root**. The generated handoff includes:
+
+   ```markdown
+   From: Codex
+   To: Claude Code
+
+   ## Completed
+   - Reject empty postal codes; two tests passed
+
+   ## Next steps
+   - Add a full-width Unicode postal-code fixture; run npm test
+
+   ## Blockers
+   - Carrier sandbox unavailable; use offline fixtures only
+   ```
+
+   Claude Code documents `/memory` for inspecting instruction files; its actual loading has **not been verified here**. Ask the receiving agent to review the context and next step before coding. No model compliance is guaranteed.
+
+For Gemini CLI or the reverse direction, change the paired `--from` / `--to` values to distinct names from `codex`, `claude`, and `gemini`. These labels record history; **every sync still generates all three instruction files**. No agent is launched. A fresh session avoids relying on an agent's in-session reload behavior.
+
+## Update, conflicts and recovery
+
+On the next handoff, review the old `.agentbridge/handoff.md`, then add `--replace-note` to the save command. You can also edit the note directly. Repeat `--done`, `--next`, and `--blocked` for multiple entries, or add `--dry-run` to preview a save. `handoff` without `--save` prints the saved note plus fresh Git facts. Saved snapshots remain historical until explicitly replaced; plain sync does not refresh them.
+
+After editing context or notes, preview and sync again. **Every change to an existing instruction file requires exact filename approval, even if AgentBridge created it.** A typical later sync, after reviewing all three proposals:
 
 ```sh
 node dist/cli.js sync --project "../my-project" --dry-run
 node dist/cli.js sync --project "../my-project" --approve-overwrite AGENTS.md,CLAUDE.md,GEMINI.md
 ```
 
-Approvals apply to that invocation only. There is no `--force` or wildcard approval. AgentBridge appends a clearly marked section to an existing user file, then updates only that section on later syncs. Text outside the markers is preserved byte-for-byte, including CRLF and UTF-8 BOMs. User text stays in its own target file; it is never copied into other agents' files. Review the complete proposal for semantic contradictions before approving.
+| Situation | Recovery |
+| --- | --- |
+| Project directory does not exist | Create your software project first, or correct `--project`; `init` creates context inside an existing directory. |
+| Discovery is empty | Only tracked paths are listed. Check the selected Git root and which files you intentionally track. Exclusions still apply to tracked files. |
+| Saved handoff exists | Review it, then edit it directly or save with `--replace-note`. Sync again afterward. |
+| `status` reports drift | Review `sync --dry-run`, reconcile context/notes and local edits, then approve the affected filenames. Exit code 1 means drift. |
+| Managed section has a `conflict` | Move any rules you want to keep into canonical context or outside the markers before approving. Approval replaces edits inside the section. |
+| Malformed markers or edited legacy output | No files are changed. Manually reconcile the file or restore a reviewed, known-good backup, preserving any newer user guidance, then preview again. |
 
-A conflict blocks application until the affected file is explicitly approved. Malformed or duplicate markers block every output until repaired manually. Existing files are backed up byte-for-byte as UTF-8 text before replacement in `.agentbridge/backups/<sha256>/<filename>`. Add that backup directory to your own `.gitignore`; AgentBridge never edits ignore rules. Backups can contain your old private guidance: review them before sharing a directory.
+Approvals apply to one invocation. There is no wildcard approval or `--force`. Text outside `<!-- agentbridge:begin -->` and `<!-- agentbridge:end -->` is preserved byte-for-byte in its own target file, including CRLF and UTF-8 BOMs; it is not copied into other agents' files. Review the complete proposal for natural-language contradictions, which AgentBridge cannot detect.
 
-Keep personal/team instructions outside `<!-- agentbridge:begin -->` and `<!-- agentbridge:end -->`. Changes inside the section are replaced only with explicit approval. Untouched files generated by the initial MVP migrate to this format after approval; edited legacy generated files stop for manual reconciliation so their additions are not discarded.
+Before replacement, existing files are backed up in `.agentbridge/backups/<sha256>/<filename>`. Review backups before restoring them; never blindly discard newer guidance. Add that backup directory to your project's `.gitignore` before sharing: it can contain old private instructions. AgentBridge never changes ignore rules. Untouched legacy generated files can migrate after approval; edited legacy files require manual reconciliation.
 
-## Handoff between sessions
+## Verified compatibility
 
-```sh
-node dist/cli.js progress --project "../my-project"
-node dist/cli.js handoff --project "../my-project" --save --from codex --to claude --done "Added parser; unit tests pass" --next "Verify Windows paths" --blocked "Waiting for fixture review"
-node dist/cli.js handoff --project "../my-project"
-node dist/cli.js sync --project "../my-project" --dry-run
-node dist/cli.js sync --project "../my-project" --approve-overwrite AGENTS.md,CLAUDE.md,GEMINI.md
-```
+The [post-merge main CI run](https://github.com/doksanbes/agentbridge/actions/runs/40848570913) passed all six Windows/macOS/Linux × Node 22.18/24 jobs. A clean public clone also passed installation, setup, preview, handoff, conflicts and recovery on Windows in a path containing spaces and Unicode.
 
-`handoff --save` stores the supplied notes with a Git snapshot in `.agentbridge/handoff.md`. Optional `--from` and `--to` record the handoff direction: `codex`, `claude`, or `gemini`. Use both together with distinct agents and `--save`. They label the historical note; sync still distributes the shared context to all three files. No agent is launched.
+| Agent | Generated files | Actual CLI loading |
+| --- | --- | --- |
+| Codex | `AGENTS.md`, simulated handoffs tested | Verified offline with installed `codex-cli 0.165.0-alpha.1.2` using prompt inspection; zero inference requests |
+| Claude Code | `CLAUDE.md`, simulated handoffs tested | **Unverified**; CLI not found in the validation environment |
+| Gemini CLI | `GEMINI.md`, simulated handoffs tested | **Unverified**; CLI not found in the validation environment |
 
-Edit the note directly or use `--replace-note` to explicitly replace it. Repeat `--done`, `--next`, and `--blocked` for multiple entries. Add `--dry-run` to preview a save. `handoff` without `--save` prints the saved notes and a fresh Git snapshot. Saved snapshots stay historical until you explicitly replace them; plain `sync` never refreshes Git facts automatically.
-
-Start or refresh the receiving agent after sync. These files provide portable project guidance, not the previous agent's hidden state or conversation. Actual offline Codex instruction loading was verified with the installed CLI; Claude/Gemini coverage is simulated, and live model compliance is untested. See the [usability validation report](docs/USABILITY_VALIDATION.md).
+All six transfer directions were simulated against a real synthetic software project. These checks verify files and workflow, not model behavior. The [validation report](docs/USABILITY_VALIDATION.md) separates simulated and actual agent evidence. Official loading references: [Claude Code memory](https://code.claude.com/docs/en/memory) and [Gemini CLI context](https://geminicli.com/docs/cli/gemini-md/).
 
 ## Commands
 
@@ -119,6 +171,6 @@ pnpm validate:workflow
 
 Tests use Node's built-in runner and temporary synthetic repositories. `validate:workflow` runs all six agent-pair handoff directions against a real disposable parser project, executes its tests, and retains the synthetic project and artifacts for inspection. It simulates the agents and does not invoke their CLIs. The optional developer-only `node scripts/validate-codex.mjs "<synthetic-project-path>"` uses an installed Codex prompt-inspection command with isolated configuration and a loopback-only provider; it starts no inference turn.
 
-See [research](docs/RESEARCH.md), [architecture](docs/ARCHITECTURE.md), [latest validation](docs/USABILITY_VALIDATION.md), [initial MVP validation](docs/VALIDATION.md), and [provenance/dependency review](docs/PROVENANCE.md). The GitHub Actions workflow runs tests and the simulated workflow on Windows, macOS, and Linux with Node 22 and 24. It is prepared locally; no hosted CI run is implied.
+AgentBridge focuses on reviewed task handoffs rather than global agent configuration; rule synchronization alone is already served by established tools. See [competitive research](docs/RESEARCH.md), [architecture](docs/ARCHITECTURE.md), [latest validation](docs/USABILITY_VALIDATION.md), [initial MVP validation](docs/VALIDATION.md), and [provenance/dependency review](docs/PROVENANCE.md). The GitHub Actions workflow runs tests and the simulated workflow on Windows, macOS, and Linux with Node 22 and 24. The linked post-merge main run passed all six jobs; PRs run the same matrix.
 
 Contributions: [CONTRIBUTING.md](CONTRIBUTING.md). Security boundaries and private reporting: [SECURITY.md](SECURITY.md). Original project code, documentation and synthetic examples are [MIT](LICENSE); external tools and dependencies retain their own licenses as recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

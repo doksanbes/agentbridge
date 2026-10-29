@@ -73,7 +73,13 @@ async function main(): Promise<void> {
   }
   const approvals = (values['approve-overwrite'] ?? '').split(',').filter(Boolean);
   if (approvals.some(name => !TARGETS.includes(name as typeof TARGETS[number]))) throw new Error('Overwrite approval must name AGENTS.md, CLAUDE.md, or GEMINI.md exactly.');
-  const git = new ProjectGit(await projectRoot(values.project ?? process.cwd()));
+  const root = await projectRoot(values.project ?? process.cwd()).catch(error => {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new Error('Project directory does not exist. Create it first, or pass --project <existing-directory>.');
+    }
+    throw error;
+  });
+  const git = new ProjectGit(root);
   await git.initialize();
   if (command === 'init') {
     await git.assertControl(CONTEXT);
