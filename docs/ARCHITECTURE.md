@@ -35,6 +35,8 @@ Text outside `<!-- agentbridge:begin -->` / `<!-- agentbridge:end -->` is user-o
 
 ## Sync protocol
 
+`doctor` is a read-only diagnostic adapter over the same root, Git-policy, bounded-read and sync-plan checks. It emits fixed messages with stable codes, severity and hints; raw errors, absolute paths and context contents are not included. Directory/Git failures stop further reads, excluded inputs remain blocked, and output drift is reported without proposals or writes. Lock checks use metadata only. Missing Git/repository and setup/drift findings are warnings when offline context is otherwise possible; invalid boundaries or blocked validation are errors. It never applies a sync, invokes agents, checks authentication, tests filesystem writability or scans home/source directories. This is a point-in-time setup report, not a security or loading certificate.
+
 1. Validate project/input/output paths and exclusion policy. Read bounded context, note, state and target files.
 2. Produce all three proposals before changing files. Compare current output hashes with the recorded baseline and desired bytes.
 3. Preview emits readable statuses and complete proposed content; `--json` includes content hashes for scripts. Checks return drift without writing.

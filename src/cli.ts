@@ -6,6 +6,7 @@ import { applySync, planSync } from './sync.js';
 import { assertSafeText, projectRoot, readText, writeText } from './safety.js';
 import { AGENTS, renderHandoff } from './handoff.js';
 import type { Agent } from './handoff.js';
+import { diagnoseProject, renderDoctor } from './doctor.js';
 
 const HELP = `AgentBridge 0.1.0 — offline project context handoffs
 
@@ -17,12 +18,13 @@ Usage: agentbridge <command> [options]
   handoff    Print current notes + live Git facts; --save records a new handoff
   sync       Generate AGENTS.md, CLAUDE.md, GEMINI.md from reviewed context
   status     Check generated instructions for drift (read-only)
+  doctor     Diagnose project setup and sync blockers without changing files
 
 Options:
   --project <directory>       Project directory (default: current directory)
   --dry-run                   Preview writes without changing any files
   --check                     Read-only sync check; exit 1 for drift
-  --json                      Machine-readable sync/status output
+  --json                      Machine-readable sync/status/doctor output
   --approve-overwrite <names>  Approve named existing files, comma-separated
                               Example: AGENTS.md,CLAUDE.md,GEMINI.md
   --save                      Save manual notes and current Git facts (handoff)
@@ -35,7 +37,7 @@ Options:
   --help                      Show this help
   --version                   Show version
 
-Exit codes: 0 success; 1 drift detected by status/--check; 2 invalid/unsafe operation.
+Exit codes: 0 success (doctor warnings allowed); 1 status/--check drift; 2 invalid/unsafe operation or doctor errors.
 No network, agent invocation, transcript ingestion, or shell execution of project commands.
 `;
 
@@ -59,9 +61,16 @@ async function main(): Promise<void> {
     init: ['project', 'dry-run'], discover: ['project'], progress: ['project'],
     handoff: ['project', 'dry-run', 'save', 'done', 'next', 'blocked', 'replace-note', 'from', 'to'],
     sync: ['project', 'dry-run', 'check', 'approve-overwrite', 'json'], status: ['project', 'json'],
+    doctor: ['project', 'json'],
   };
   if (!permitted[command]) throw new Error('Unknown command. Run agentbridge --help.');
   for (const key of Object.keys(values)) if (!permitted[command]!.includes(key)) throw new Error(`Option --${key} does not apply to ${command}.`);
+  if (command === 'doctor') {
+    const report = await diagnoseProject(values.project ?? process.cwd());
+    console.log(values.json ? JSON.stringify(report, null, 2) : renderDoctor(report));
+    process.exitCode = report.summary.errors ? 2 : 0;
+    return;
+  }
   const approvals = (values['approve-overwrite'] ?? '').split(',').filter(Boolean);
   if (approvals.some(name => !TARGETS.includes(name as typeof TARGETS[number]))) throw new Error('Overwrite approval must name AGENTS.md, CLAUDE.md, or GEMINI.md exactly.');
   const root = await projectRoot(values.project ?? process.cwd()).catch(error => {

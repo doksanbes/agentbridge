@@ -4,6 +4,8 @@ Local MVP review: October 29, 2026. This is an engineering inventory, not a lega
 
 First source-publication preparation for `doksanbes/agentbridge` is recorded in [PUBLICATION_AUDIT.md](PUBLICATION_AUDIT.md). The exact manifest excludes installed dependencies, compiled output, downloaded tools and local evidence. [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) explicitly limits MIT to original project work and inventories external licenses. No external implementation or assets were added during publication preparation.
 
+Doctor milestone review, October 29, 2026: the new diagnostics module, synthetic regression tests and product review are original AI-assisted project work under the existing MIT scope. Public documentation informed the candidate assessment; no competitor implementation was incorporated. No dependencies or third-party notices changed. The source manifest explicitly adds these three files, increasing the audited source set from 47 to 50; generated builds and local evidence remain excluded.
+
 Usability follow-up review on the same date: no third-party code or npm packages were added. Managed-section handling, note formatting, regression tests and development validators were newly written for AgentBridge. Node 22.18.0 was downloaded from the official distribution and checksum-verified only for local tests; its files remain under ignored `.cache/` and are not included in package output. The optional Codex validator invokes an existing executable through its local debug interface; it does not redistribute Codex or call a paid service.
 
 ## Project provenance

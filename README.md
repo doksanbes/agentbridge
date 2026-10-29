@@ -127,6 +127,9 @@ All six transfer directions were simulated against a real synthetic software pro
 | `handoff --save --next "..."` | Record explicit notes with current Git facts |
 | `sync [--dry-run]` | Preview or generate all three instruction files |
 | `sync --check` / `status` | Read-only drift check suitable for CI |
+| `doctor [--json]` | Diagnose environment, project setup and sync blockers without changing files |
+
+For setup problems, run `node dist/cli.js doctor --project "../my-project"`. It checks the running Node version, selected project/Git root, context initialization, saved note, sync lock and generated-file statuses. Each finding includes a next step; add `--json` for a versioned report with diagnostic codes and error/warning counts. Exit 0 means no error diagnostics, with warnings allowed; exit 2 means a blocked/invalid check. For example, a missing context suggests `init`, while an edited output suggests a preview and named approval. Doctor never fixes files, removes locks, tests write access or invokes an agent. It does not verify loading or semantic correctness. See the [focused review and acceptance criteria](docs/NEXT_MILESTONE.md).
 
 All commands accept `--project <directory>`. Use the Git root for Git projects; nested-folder writes are rejected. A plain directory without Git supports initialization, notes, and sync but reports no discovered files. When ignore rules exist but cannot be safely evaluated, writes and context reads fail closed.
 

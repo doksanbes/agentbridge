@@ -14,6 +14,7 @@
 - Add repeatable six-direction software-project validation, offline Codex prompt inspection, and Node 22.18 compatibility evidence.
 
 - Initialize an editable canonical Markdown project context.
+- Add read-only `doctor` diagnostics for Node/project/Git setup, context, saved notes, sync locks and output drift, with human-readable next steps and versioned JSON. No automatic fixes or agent probes.
 - Discover filtered tracked paths without opening source or manifest contents.
 - Generate deterministic AGENTS.md, CLAUDE.md and GEMINI.md instructions.
 - Show bounded Git progress facts and record explicit manual handoffs.
