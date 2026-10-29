@@ -1,4 +1,5 @@
 .gitattributes
+.github/workflows/attested-build.yml
 .github/workflows/ci.yml
 .gitignore
 CHANGELOG.md
@@ -8,6 +9,7 @@ README.md
 SECURITY.md
 THIRD_PARTY_NOTICES.md
 docs/ARCHITECTURE.md
+docs/ATTESTED_BUILD.md
 docs/DISTRIBUTION.md
 docs/INITIAL_COMMIT_MESSAGE.txt
 docs/NEXT_MILESTONE.md
@@ -34,6 +36,7 @@ package.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
 publication-files.txt
+scripts/attestation-policy.mjs
 scripts/audit-publication.mjs
 scripts/package-tools.mjs
 scripts/package.mjs
@@ -48,6 +51,7 @@ src/handoff.ts
 src/managed.ts
 src/safety.ts
 src/sync.ts
+test/attestation-policy.test.mjs
 test/doctor.test.mjs
 test/integration.test.mjs
 test/package.test.mjs

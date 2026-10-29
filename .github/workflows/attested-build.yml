@@ -1,0 +1,65 @@
+name: Attested approved archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  attest:
+    if: github.repository == 'doksanbes/agentbridge' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout reviewed orchestration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: orchestration
+          persist-credentials: false
+      - name: Checkout exact approved source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1aa6cd22ae92dfba99df50f898234f460ccf96d3
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22.18.0'
+          package-manager-cache: false
+      - name: Build and validate approved source
+        working-directory: source
+        run: |
+          npm install --global pnpm@11.25.0 --ignore-scripts
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm typecheck
+          pnpm build
+          pnpm test
+          node scripts/audit-publication.mjs
+          pnpm validate:package
+      - name: Enforce approved commit and exact digest
+        run: node orchestration/scripts/attestation-policy.mjs prepare source approved-source.json
+      - name: Attest build provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: source/.cache/packages/agentbridge-0.1.0.tgz
+          create-storage-record: false
+      - name: Attest checked archive source binding
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: source/.cache/packages/agentbridge-0.1.0.tgz
+          predicate-type: https://github.com/doksanbes/agentbridge/attestations/approved-source/v1
+          predicate-path: approved-source.json
+          create-storage-record: false
+      - name: Verify both signatures and approved source binding
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify source/.cache/packages/agentbridge-0.1.0.tgz --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://slsa.dev/provenance/v1
+          gh attestation verify source/.cache/packages/agentbridge-0.1.0.tgz --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://github.com/doksanbes/agentbridge/attestations/approved-source/v1 --format json > verified-source.json
+          node orchestration/scripts/attestation-policy.mjs verify verified-source.json
