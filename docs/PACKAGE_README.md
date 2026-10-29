@@ -2,7 +2,9 @@
 
 Carry reviewed project context between Codex, Claude Code and Gemini CLI, offline. One editable context file and explicit handoff notes generate `AGENTS.md`, `CLAUDE.md` and `GEMINI.md`. AgentBridge never calls a model or reads chat histories.
 
-This archive is distribution preparation, **not a published release or npm package**. Use only an archive supplied through a maintainer-approved channel. No public download or registry installation is available yet. The package name is local metadata, not proof of npm namespace ownership.
+This guide covers the experimental v0.1.0 npm-format archive intended for GitHub prerelease distribution. Check [GitHub Releases](https://github.com/doksanbes/agentbridge/releases) for a maintainer-published v0.1.0 prerelease with an `agentbridge-0.1.0.tgz` asset. If that asset is not listed, it is not available through this channel. These instructions do not announce publication.
+
+When available, obtain the precompiled `.tgz` asset, not GitHub's automatically generated source-code ZIP or tarball, which does not include the compiled CLI. Use npm to install the downloaded file locally. This is separate from npm registry installation: do not substitute an unqualified `npm install --global agentbridge` or registry-based npx command. The package name is local metadata, not proof of npm namespace ownership; registry publication requires separate verification and approval.
 
 ## Install a reviewed archive
 
