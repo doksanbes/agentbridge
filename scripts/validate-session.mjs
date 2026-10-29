@@ -1,6 +1,6 @@
 // Synthetic workflow, not evidence of model behavior. Optional Codex probe renders
 // a prompt with an isolated home and rejecting local provider; never starts a turn.
-import { mkdtemp, mkdir, writeFile, readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -67,11 +67,18 @@ if (process.env.AGENTBRIDGE_CODEX_BINARY) {
     const rendered = JSON.stringify(JSON.parse(output));
     assert.ok(rendered.includes('Prepare a reviewed Codex-to-Claude Code or Gemini CLI project handoff'), 'Skill metadata was not discovered by the real Codex CLI.');
     assert.ok(rendered.includes('SKILL.md'), 'Skill location missing from actual prompt.');
+    // Test the real default installer and personal lookup, without changing the
+    // OS user's home or leaving a repository skill that could mask a failure.
+    await unlink(path.join(project, '.agents/skills/agentbridge-handoff/SKILL.md'));
+    command(process.execPath, [cliPath, 'install-skill'], project, undefined, env);
+    const personal = command(process.env.AGENTBRIDGE_CODEX_BINARY, ['-C', project, 'debug', 'prompt-input', '$agentbridge-handoff to Claude Code'], project, undefined, env);
+    assert.ok(JSON.stringify(JSON.parse(personal)).includes('Prepare a reviewed Codex-to-Claude Code or Gemini CLI project handoff'), 'Default personal skill installation was not discovered.');
     assert.equal(requests, 0);
     report.codexPromptInspection = true; report.inferenceRequests = requests;
     // debug prompt-input appends a literal prompt. It exposes skill discovery, but
     // does not simulate interactive skill selection or an actual agent turn.
     report.skillDiscoveryVerified = true; report.interactiveInvocationVerified = false;
+    report.verifiedSkillScopes = ['repository .agents/skills', 'personal CODEX_HOME/skills'];
     report.skillBodyPresentInDebugPrompt = rendered.includes('agentbridge session --inspect');
     report.codexVersion = command(process.env.AGENTBRIDGE_CODEX_BINARY, ['--version'], project, undefined, env).trim();
   } finally { await new Promise(resolve => server.close(resolve)); }

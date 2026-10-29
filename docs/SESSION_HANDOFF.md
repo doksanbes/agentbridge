@@ -21,10 +21,12 @@ Codex. Use `agentbridge.cmd` if PowerShell blocks npm's script shim. No new acco
 API key, subscription, paid API or runtime dependency is introduced by AgentBridge.
 The host agent's normal account and inference requirements still apply.
 
-`install-skill` creates only `~/.agents/skills/agentbridge-handoff/SKILL.md`.
+`install-skill` creates only `$CODEX_HOME/skills/agentbridge-handoff/SKILL.md`
+(or `~/.codex/skills/agentbridge-handoff/SKILL.md` when CODEX_HOME is unset).
 It is idempotent and refuses to replace different content. Use `--dry-run` to
-preview installation, `--skill-home <existing-directory>` for a selected home or
-repository-scoped installation. It rejects linked descendant paths. To uninstall,
+preview installation. For a repository-scoped installation use
+`--skill-home <existing-project-root>`; this writes `.agents/skills` beneath that
+root instead. It rejects linked descendant paths. To uninstall,
 review then remove that skill directory yourself; no project files are removed.
 
 ## One action, then approval
@@ -112,6 +114,8 @@ Reviewed official documentation on 2026-10-29:
 | Gemini CLI | TOML custom slash commands, skills, GEMINI.md project context | A future adapter could expose `/handoff`. This change generates GEMINI.md; actual Gemini loading remains unverified. |
 
 Sources: [OpenAI skills](https://learn.chatgpt.com/docs/build-skills),
+[OpenAI personal-skill example](https://developers.openai.com/cookbook/examples/codex/iterating-development-workflows-with-codex),
+[CODEX_HOME](https://learn.chatgpt.com/docs/config-file/environment-variables),
 [deprecated Codex custom prompts](https://learn.chatgpt.com/docs/custom-prompts),
 [Claude skills](https://code.claude.com/docs/en/skills),
 [Claude memory](https://code.claude.com/docs/en/memory),
@@ -130,6 +134,9 @@ With `AGENTBRIDGE_CODEX_BINARY` selecting an installed executable, it additional
 uses Codex's debug prompt renderer with isolated configuration and a rejecting
 local provider. It checks discovered skill metadata with zero inference requests;
 the renderer does not exercise interactive skill expansion or approval behavior.
+Both repository and CODEX_HOME personal discovery are checked separately. The
+installed Windows build did not discover a simulated personal HOME/.agents skill;
+the default uses the documented Codex-managed location verified on that build.
 
 CI exercises the synthetic flow and clean offline package installation on Windows,
 macOS and Linux with Node 22.18 and 24. No inference tests run in CI. The candidate

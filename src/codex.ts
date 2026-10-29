@@ -54,11 +54,15 @@ its normal privacy/account behavior; summarization is not a new free inference s
 Never commit, push, publish, or grant new permissions as part of this skill.
 `;
 
-export async function installCodexSkill(home = homedir(), dryRun = false): Promise<string> {
-  const root = await projectRoot(home);
-  const previous = await readText(root, SKILL_PATH);
+export async function installCodexSkill(home?: string, dryRun = false): Promise<string> {
+  // Codex-managed personal skills honor CODEX_HOME. Repository scope remains an
+  // explicit selection; never edit config.toml or install duplicate copies.
+  const root = await projectRoot(home ?? process.env.CODEX_HOME ?? homedir());
+  const destination = home !== undefined ? SKILL_PATH :
+    process.env.CODEX_HOME ? 'skills/agentbridge-handoff/SKILL.md' : '.codex/skills/agentbridge-handoff/SKILL.md';
+  const previous = await readText(root, destination);
   if (previous === CODEX_SKILL) return 'Codex handoff skill is already installed; unchanged.';
   if (previous !== undefined) throw new Error('Codex handoff skill already exists with different content. Review it manually; installation never overwrites it.');
-  if (!dryRun) await writeText(root, SKILL_PATH, CODEX_SKILL);
-  return `${dryRun ? 'Would install' : 'Installed'} ${SKILL_PATH}. In Codex select $agentbridge-handoff (or /skills). Restart the host if it is not listed.`;
+  if (!dryRun) await writeText(root, destination, CODEX_SKILL);
+  return `${dryRun ? 'Would install' : 'Installed'} ${destination}. In Codex select $agentbridge-handoff (or /skills). Restart the host if it is not listed.`;
 }

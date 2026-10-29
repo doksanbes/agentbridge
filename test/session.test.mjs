@@ -173,3 +173,14 @@ test('one-time skill installation is idempotent, supports dry runs, refuses repl
   await symlink(outside, path.join(linked, '.agents'), process.platform === 'win32' ? 'junction' : 'dir');
   await assert.rejects(installCodexSkill(linked)); assert.deepEqual(await readdir(outside), []);
 });
+
+test('default skill installer respects isolated CODEX_HOME and refuses to replace personal content', async t => {
+  const home = await fixture(t);
+  const env = { ...process.env, CODEX_HOME: home };
+  const run = (...args) => spawnSync(process.execPath, [cli, 'install-skill', ...args], { env, encoding: 'utf8', windowsHide: true });
+  assert.equal(run('--dry-run').status, 0); assert.deepEqual(await readdir(home), []);
+  assert.equal(run().status, 0); assert.equal(await get(home, 'skills/agentbridge-handoff/SKILL.md'), CODEX_SKILL);
+  assert.equal(run().status, 0);
+  await put(home, 'skills/agentbridge-handoff/SKILL.md', 'User-maintained skill');
+  assert.equal(run().status, 2); assert.equal(await get(home, 'skills/agentbridge-handoff/SKILL.md'), 'User-maintained skill');
+});

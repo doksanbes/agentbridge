@@ -32,7 +32,7 @@ Options:
   --json                      Machine-readable sync/status/doctor output
   --inspect                   Collect session facts without reading stdin
   --approve <digest>          Apply the exact reviewed session preview
-  --skill-home <directory>    Skill installation home (default: user home)
+  --skill-home <directory>    Repository skill root (default: personal Codex skills)
   --approve-overwrite <names>  Approve named existing files, comma-separated
                               Example: AGENTS.md,CLAUDE.md,GEMINI.md
   --save                      Save manual notes and current Git facts (handoff)
