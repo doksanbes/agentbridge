@@ -1,0 +1,22 @@
+{
+  "name": "agentbridge",
+  "version": "0.1.0",
+  "description": "Offline, reviewable project context handoffs for Codex, Claude Code, and Gemini CLI",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/doksanbes/agentbridge.git" },
+  "engines": { "node": ">=22.18.0" },
+  "bin": { "agentbridge": "dist/cli.js" },
+  "files": ["dist", "README.md", "LICENSE", "SECURITY.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/*.test.mjs",
+    "validate:workflow": "node scripts/validate-workflow.mjs",
+    "check": "pnpm typecheck && pnpm build && pnpm test",
+    "start": "node dist/cli.js"
+  },
+  "devDependencies": { "@types/node": "22.19.0", "typescript": "5.9.3" },
+  "packageManager": "pnpm@11.25.0"
+}

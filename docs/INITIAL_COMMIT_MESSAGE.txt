@@ -1,0 +1,14 @@
+Initial experimental AgentBridge CLI
+
+Add an offline TypeScript CLI for reviewed Codex, Claude Code and Gemini CLI
+project-context handoffs, manual notes, filtered Git facts and safe instruction sync.
+
+Preserve user instruction sections, require explicit overwrite approval, retain
+backups, and provide previews, drift checks and sensitive-file exclusions.
+
+Include 35 unit/integration tests, six-direction synthetic workflow validation,
+Windows/macOS/Linux CI, MIT licensing, provenance and private-reporting guidance.
+
+Validate locally on Windows with Node 22.18 and 24. Verify actual Codex loading
+offline; explicitly leave Claude/Gemini loading and hosted cross-platform CI
+unverified. Keep npm publication disabled and make no model-compliance claims.
