@@ -21,7 +21,7 @@ Keep modules focused, errors actionable, and outputs deterministic. Add meaningf
 
 Before proposing a change, explain the developer problem, observable behavior, tests, and limitations. Do not copy competitor implementations or private/proprietary examples. Record attribution and licensing for any incorporated third-party work. Never include real credentials, chat histories or customer repositories in fixtures.
 
-Node 22 (22.18.0+) and 24 are tested locally on Windows. CI is configured for Windows/macOS/Linux; it has not yet run on GitHub. Claude Code and Gemini CLI loading are unverified; do not describe generated-file simulation as actual agent validation. The optional Codex check verifies loading only, not model behavior.
+Use the [README source installation](README.md#install-from-source) for a clean checkout. Node 22 (22.18.0+) and 24 are tested locally on Windows and in GitHub Actions on Windows/macOS/Linux. The [post-merge main run](https://github.com/doksanbes/agentbridge/actions/runs/40848570913) passed all six jobs. Claude Code and Gemini CLI loading are unverified; do not describe generated-file simulation as actual agent validation. The optional Codex check verifies loading only, not model behavior.
 
 Security reports go through the private process in [SECURITY.md](SECURITY.md), never ordinary public issues with exploit details. Publication, repository creation, package naming and release signing still require maintainer approval. Do not introduce publishing or deployment steps to CI.
 
