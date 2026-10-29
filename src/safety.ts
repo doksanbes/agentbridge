@@ -76,7 +76,10 @@ export async function projectRoot(input: string): Promise<string> {
 // Reject symlinks/junctions in every existing path component and hard-linked files.
 export async function safePath(root: string, relative: string): Promise<string> {
   const parts = relativePath(relative).split('/');
-  let current = root;
+  // The selected root can have aliases (junctions, short names, /var symlinks).
+  // Resolve that boundary once; still lstat every descendant before resolving it.
+  const canonicalRoot = await projectRoot(root);
+  let current = canonicalRoot;
   for (let i = 0; i < parts.length; i++) {
     current = path.join(current, parts[i]!);
     try {
@@ -84,14 +87,14 @@ export async function safePath(root: string, relative: string): Promise<string> 
       if (stat.isSymbolicLink() || (i < parts.length - 1 ? !stat.isDirectory() : (!stat.isFile() && !stat.isDirectory())) ||
           (stat.isFile() && stat.nlink > 1)) throw new Error('Unsafe linked or special project path.');
       const resolved = await realpath(current);
-      const rel = path.relative(root, resolved);
+      const rel = path.relative(canonicalRoot, resolved);
       if (rel.startsWith('..') || path.isAbsolute(rel)) throw new Error('Path escapes project.');
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') break;
       throw error;
     }
   }
-  return path.join(root, ...parts);
+  return path.join(canonicalRoot, ...parts);
 }
 
 export async function readText(root: string, relative: string): Promise<string | undefined> {
