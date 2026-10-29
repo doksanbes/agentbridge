@@ -4,13 +4,13 @@ Carry reviewed project context between Codex, Claude Code, and Gemini CLI, entir
 
 AgentBridge combines one editable Markdown context file, explicit session notes, and filtered Git facts. It generates the three agents' project instruction files and reports drift before replacing anything. It never calls an AI model or reads chat histories.
 
-**Status: experimental, 0.1.0 (unreleased).** For developers who switch coding agents mid-task and want the next session to know what is done, what to do next, and what is blocked. You review the facts; AgentBridge writes them into `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`, while preserving existing user instructions outside its managed section.
+**Status: experimental, 0.1.0.** For developers who switch coding agents mid-task and want the next session to know what is done, what to do next, and what is blocked. You review the facts; AgentBridge writes them into `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`, while preserving existing user instructions outside its managed section.
 
-**Limits:** it does not transfer conversations, infer completed work, launch agents, or resolve contradictory instructions. There is no published npm package. This independent project is not affiliated with OpenAI, Anthropic, or Google.
+**Limits:** it does not transfer conversations, infer completed work, launch agents, or resolve contradictory instructions. The archive installation below does not use an npm registry package. This independent project is not affiliated with OpenAI, Anthropic, or Google.
 
-## Zero-build package — preparation only
+## GitHub prerelease archive installation
 
-A reviewed prebuilt npm-format archive can run with Node.js 22.18+ or 24 and npm, without cloning, pnpm or TypeScript. **No archive release or npm publication is available yet.** After a maintainer-approved archive is obtained and its trusted SHA-256 checked, the intended install command is:
+A reviewed prebuilt npm-format archive can run with Node.js 22.18+ or 24 and npm, without cloning, pnpm or TypeScript. Check [GitHub Releases](https://github.com/doksanbes/agentbridge/releases) for a maintainer-published v0.1.0 prerelease and its `agentbridge-0.1.0.tgz` asset. If it is not listed, it is not available through this channel; these instructions do not announce publication. When available, obtain that precompiled asset rather than an automatic source-code archive, verify its SHA-256 against a trusted value, then install the downloaded file:
 
 ```sh
 npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.1.0.tgz

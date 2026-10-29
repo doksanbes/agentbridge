@@ -1,6 +1,6 @@
-# Zero-build distribution preparation
+# Experimental GitHub archive distribution
 
-Experimental and unpublished: this milestone builds/tests a local archive. It does not create a release/tag, upload an asset, publish to npm or establish npm namespace ownership.
+This guide describes the experimental v0.1.0 archive intended for GitHub prerelease distribution. Check [GitHub Releases](https://github.com/doksanbes/agentbridge/releases) for the maintainer-published prerelease and its precompiled `agentbridge-0.1.0.tgz` asset. If the asset is not listed, it is not available through this channel. These instructions do not announce publication. Creating tags/releases, uploading assets and publishing to npm require separate approval; npm namespace ownership is not implied.
 
 | Approach | Value | Maintenance/security | Decision |
 | --- | --- | --- | --- |
@@ -10,9 +10,9 @@ Experimental and unpublished: this milestone builds/tests a local archive. It do
 
 Primary references: [npm tarball installation](https://docs.npmjs.com/cli/v11/commands/npm-install/), [npm pack](https://docs.npmjs.com/cli/v11/commands/npm-pack/), [files/bin/private metadata](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/), [lifecycle scripts](https://docs.npmjs.com/cli/v11/using-npm/scripts/). No third-party implementation was copied.
 
-## Intended installation
+## Install a verified GitHub archive
 
-After obtaining an approved archive and checking its SHA-256 against a trusted value, run from its directory:
+When the maintainer-published asset is available, obtain the precompiled `.tgz` rather than GitHub's automatic source-code archives. After checking its SHA-256 against a trusted value, run from its directory:
 
 ```sh
 npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.1.0.tgz
@@ -21,7 +21,7 @@ agentbridge --help
 
 Requires Node 22.18+ or 24 with npm, a writable prefix and its executable directory on PATH. Git enables Git facts. Use `agentbridge.cmd` if PowerShell policy blocks scripts. npm supports `--prefix <writable-directory>`; do not elevate solely to install. See the self-contained [consumer guide](PACKAGE_README.md).
 
-No approved public download or registry command exists yet. The candidate name/version is not a release. Namespace ownership is unverified: do not install an unrelated registry package named `agentbridge`. npx-style execution is tested through `npm exec` with the **local archive**, not a registry identifier.
+Installing a downloaded GitHub archive with npm is separate from npm registry installation. Verify namespace ownership and obtain separate approval before any registry publication; do not substitute an unrelated registry package named `agentbridge`. npx-style execution is tested through `npm exec` with the **local archive**, not a registry identifier. Release availability is determined by the published prerelease asset, not by this guide.
 
 ## Maintainer build
 
