@@ -105,7 +105,12 @@ test('clean source preflight rejects wrong source, dirty trees, linked assets an
   await assert.rejects(prepareRelease(f.root,{...f.approval,sourceCommit:'0'.repeat(40)}));
   await writeFile(path.join(f.root,'unexpected.txt'),'unreviewed');await assert.rejects(prepareRelease(f.root,f.approval));await rm(path.join(f.root,'unexpected.txt'));
   await link(name,path.join(f.root,'.cache/copy'));await assert.rejects(prepareRelease(f.root,f.approval));await rm(path.join(f.root,'.cache/copy'));
-  await rm(name+'.manifest.json');await symlink(name,name+'.manifest.json',process.platform==='win32'?'file':undefined).catch(e=>{if(process.platform==='win32'&&e.code==='EPERM')return;throw e;});
+  const packages=path.dirname(name),outside=path.join(f.root,'.cache/linked-packages');await mkdir(outside);
+  for(const suffix of ['', '.manifest.json', '.sha256'])await copyFile(name+suffix,path.join(outside,path.basename(name)+suffix));
+  // Directory junctions work on Windows without file-symlink privileges. Never
+  // convert an unavailable link test into a passing missing-file test.
+  assert.ok(path.relative(f.root,packages).startsWith('.cache'+path.sep));
+  await rm(packages,{recursive:true});await symlink(outside,packages,process.platform==='win32'?'junction':'dir');
   await assert.rejects(prepareRelease(f.root,f.approval));
 });
 
