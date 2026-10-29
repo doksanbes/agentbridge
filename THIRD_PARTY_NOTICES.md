@@ -24,4 +24,8 @@ The MIT license files at the exact pinned revisions were checked: [checkout lice
 
 No copied competitor implementation, logo or other third-party asset was found in the reviewed publication set. Reference links and compatibility names do not imply affiliation. If a future distribution bundles dependencies, runtime/compiler helpers, executables or other third-party material, review that exact distribution and carry all required upstream notices before release.
 
-See [provenance](docs/PROVENANCE.md) for original-source history and [publication audit](docs/PUBLICATION_AUDIT.md) for the reviewed file boundary. The package remains `private: true`; this preparation concerns a source repository, not an npm release.
+See [provenance](https://github.com/doksanbes/agentbridge/blob/main/docs/PROVENANCE.md) for original-source history and [publication audit](https://github.com/doksanbes/agentbridge/blob/main/docs/PUBLICATION_AUDIT.md) for the reviewed source boundary. The package remains `private: true`; no npm release has been published.
+
+## Prebuilt archive preparation
+
+The unpublished 13-file npm-format archive contains compiled original AgentBridge JavaScript, a consumer README, the original MIT license, SECURITY.md and this notice. Its ES2022 output uses Node built-ins and local modules; no compiler runtime helpers, third-party packages, Node/npm/Git executables or development definitions are included. Those prerequisites remain separately licensed and installed. MIT applies to the original compiled work; it does not relicense external tools. `private: true` remains enabled and no npm or release publication has occurred. The source-only review above remains a historical record; [distribution preparation](https://github.com/doksanbes/agentbridge/blob/main/docs/DISTRIBUTION.md) describes the additional archive boundary.

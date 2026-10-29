@@ -8,6 +8,17 @@ AgentBridge combines one editable Markdown context file, explicit session notes,
 
 **Limits:** it does not transfer conversations, infer completed work, launch agents, or resolve contradictory instructions. There is no published npm package. This independent project is not affiliated with OpenAI, Anthropic, or Google.
 
+## Zero-build package — preparation only
+
+A reviewed prebuilt npm-format archive can run with Node.js 22.18+ or 24 and npm, without cloning, pnpm or TypeScript. **No archive release or npm publication is available yet.** After a maintainer-approved archive is obtained and its trusted SHA-256 checked, the intended install command is:
+
+```sh
+npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.1.0.tgz
+agentbridge --help
+```
+
+Use a writable npm prefix with its command directory on PATH; do not elevate solely to install. On PowerShell systems that block scripts, use `agentbridge.cmd`. Do not install an unrelated registry package named `agentbridge`: registry ownership and publication are unverified. The archive includes a self-contained [consumer guide](docs/PACKAGE_README.md); run installed commands from your software project's root. The source walkthrough below remains available today. See [distribution design, contents and validation](docs/DISTRIBUTION.md).
+
 ## Install from source
 
 Requirements: Git, Node.js **22.18+ or 24**, and pnpm **11.25.0**. These are the tested Node lines; other versions have not been validated. Install Node and Git first, then run:

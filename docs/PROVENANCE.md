@@ -1,5 +1,7 @@
 # Provenance and dependency review
 
+Zero-build preparation, October 29, 2026: packaging scripts, synthetic package tests and consumer/distribution documentation are original AI-assisted project work. No dependencies or competitor implementations were added. The source manifest grows from 50 to 56 files. The separate 13-file archive contains compiled original ES2022 code and notices only; inspected imports use Node built-ins/local modules and no compiler helpers are emitted. Development packages and runtimes are not redistributed. Both manifests remain private and publication is unapproved; see [distribution review](DISTRIBUTION.md).
+
 Local MVP review: October 29, 2026. This is an engineering inventory, not a legal opinion or a guarantee of originality. The repository is prepared under MIT, with release pending maintainer approval.
 
 First source-publication preparation for `doksanbes/agentbridge` is recorded in [PUBLICATION_AUDIT.md](PUBLICATION_AUDIT.md). The exact manifest excludes installed dependencies, compiled output, downloaded tools and local evidence. [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) explicitly limits MIT to original project work and inventories external licenses. No external implementation or assets were added during publication preparation.
