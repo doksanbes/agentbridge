@@ -54,6 +54,8 @@ No-Git directories return an empty discovery inventory. Context operations still
 
 ## Threat model and limits
 
+`safePath` resolves the selected project root to an existing physical directory before walking child components, matching the CLI's root-selection behavior. An alias at or above that selected root (such as a Windows junction/short name or macOS temporary-directory symlink) is valid. Every descendant is still checked with `lstat` before its `realpath` is compared with the resolved root; descendant links, hard links and escapes remain rejected. No blanket lowercasing is applied, so filesystem case semantics and distinct case-sensitive directories are preserved. Missing roots and non-directory roots fail before child writes.
+
 Protect accidental disclosure and unintentional instruction replacement in a normal local development workflow. Detect likely credentials and avoid automatic imports. Do not claim protection against a malicious local process that can mutate files between OS calls, filesystem permission changes, hostile Git binaries, crafted Git configurations/includes, or arbitrary natural-language secrets. There is a small final check-to-rename race; do not run writes concurrently with untrusted processes. Node file modes are best effort on Windows and do not replace ACLs. Git hashes and ordinary paths can themselves reveal project metadata; review before sharing.
 
 Conflict detection is structural: unmanaged output, canonical-source change, output edit, invalid state, exclusion violation, or detected concurrent modification. It cannot reconcile instructions such as “use Python” versus “use Rust” or infer whether a note is stale. Such conflicts require human editing of the canonical file before approving generation.

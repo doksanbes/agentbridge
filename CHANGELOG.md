@@ -2,6 +2,8 @@
 
 ## 0.1.0 — Unreleased
 
+- Resolve project-root aliases before filesystem containment checks, fixing false path-escape failures on Windows/macOS while retaining descendant-link, hard-link and write protections.
+
 - Preserve existing user instructions outside explicit managed sections, with strict marker validation and conservative migration of legacy generated files.
 - Show readable previews/status by default, retain machine-readable output through `--json`, and explain staged/unstaged Git changes.
 - Record optional handoff directions through `--from` / `--to`; keep multiline notes structured and allow explicit repair of credential-like old notes.
