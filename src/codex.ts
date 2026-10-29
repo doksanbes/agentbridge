@@ -10,7 +10,7 @@ description: Prepare a reviewed Codex-to-Claude Code or Gemini CLI project hando
 # AgentBridge handoff
 
 Use the installed agentbridge CLI. If unavailable, explain that this skill requires
-the unreleased session-enabled AgentBridge build; do not install anything silently.
+a session-enabled AgentBridge build; do not install anything silently.
 On Windows, use agentbridge.cmd if PowerShell policy blocks the generated ps1 shim.
 
 1. Run agentbridge session --inspect in the active project working directory.

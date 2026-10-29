@@ -1,21 +1,22 @@
-# Reviewed session handoff (unreleased)
+# Reviewed session handoff — v0.2.0 candidate
 
-This feature is on the feature branch, **not in the published v0.1.0 archive**.
+This feature is included in the v0.2.0 candidate, **not in the published v0.1.0 archive**.
 AgentBridge remains experimental. Install a reviewed candidate build once; then a
 Codex skill handles discovery, preparation and synchronization after your approval.
 
 ## Setup once
 
-For now, check out this feature branch and follow the source installation in the
-README, then run `pnpm package:build`. Install that locally built candidate archive:
+Check GitHub Releases for an approved v0.2.0 prerelease archive. Until published,
+maintainers can follow source installation and run `pnpm package:build`. Install
+the reviewed downloaded or locally built candidate archive:
 
 ```sh
-npm install --global --offline --ignore-scripts --no-audit --no-fund ./.cache/packages/agentbridge-0.1.0.tgz
+npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.2.0.tgz
 agentbridge install-skill
 ```
 
-The filename retains development metadata; this is not a replacement published
-v0.1.0 asset or a new release. Verify the candidate's checksum and source before
+These instructions do not announce publication and do not replace the immutable
+v0.1.0 asset. Verify the candidate's checksum and source before
 installing. Requires Node 22.18+ or 24, npm, a writable prefix on PATH and installed
 Codex. Use `agentbridge.cmd` if PowerShell blocks npm's script shim. No new account,
 API key, subscription, paid API or runtime dependency is introduced by AgentBridge.
@@ -140,6 +141,8 @@ the default uses the documented Codex-managed location verified on that build.
 
 CI exercises the synthetic flow and clean offline package installation on Windows,
 macOS and Linux with Node 22.18 and 24. No inference tests run in CI. The candidate
-archive now has 15 explicit files (the original 13 plus dist/codex.js and
+candidate allowlist has 15 explicit files (the original 13 plus dist/codex.js and
 dist/session.js), no dependencies or install hooks. The immutable v0.1.0 artifact
 and its pinned attested-build workflow are unchanged.
+
+A human-approved synthetic desktop-chat test verified preview, approval, save, synchronization and preservation. Personal skill discovery was observed in the desktop session’s available-skills catalog. Starting through the desktop picker and real receiving-agent loading remain unverified; no claim of all model behavior is made.

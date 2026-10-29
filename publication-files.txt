@@ -17,6 +17,7 @@ docs/PACKAGE_README.md
 docs/PROVENANCE.md
 docs/PUBLICATION_AUDIT.md
 docs/PUBLICATION_PLAN.md
+docs/RELEASE_NOTES_v0.2.0.md
 docs/RESEARCH.md
 docs/SESSION_HANDOFF.md
 docs/USABILITY_VALIDATION.md
@@ -43,6 +44,7 @@ scripts/package-tools.mjs
 scripts/package.mjs
 scripts/validate-codex.mjs
 scripts/validate-package.mjs
+scripts/validate-release.mjs
 scripts/validate-session.mjs
 scripts/validate-workflow.mjs
 src/cli.ts

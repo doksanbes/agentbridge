@@ -1,10 +1,10 @@
 # Security policy
 
-AgentBridge 0.1.x is experimental. Security fixes are considered for the current experimental main branch; no stable-release support window or response SLA is promised. It processes explicitly selected project context and local Git metadata; the product CLI does not contact services or load agent transcripts. Claude Code and Gemini CLI instruction loading remain unverified.
+AgentBridge 0.x is experimental. Security fixes are considered for the current experimental main branch; no stable-release support window or response SLA is promised. It processes explicitly selected project context and local Git metadata; the product CLI does not contact services or load agent transcripts. Claude Code and Gemini CLI instruction loading remain unverified.
 
 ## Boundaries
 
-- Legacy sync instruction replacements require explicit filename approval. The unreleased session flow requires approval of a digest binding the exact preview, named replacements, project root and visible Git facts. State files never authorize replacement. Backups preserve overwritten UTF-8 text and prior session notes.
+- Legacy sync instruction replacements require explicit filename approval. The v0.2.0 session flow requires approval of a digest binding the exact preview, named replacements, project root and visible Git facts. State files never authorize replacement. Backups preserve overwritten UTF-8 text and prior session notes.
 - Ignored paths, built-in sensitive filenames and `.agentbridgeignore` exclusions are removed before inventory/progress output. No source-file contents, patches, commit messages or authors are collected.
 - Symlinks/junctions in input/output paths and hard-linked context files are rejected. Inputs are bounded and must be valid UTF-8.
 - Credential-pattern detection and `@file` blocking reduce accidental propagation. They cannot recognize every secret, private statement or indirect instruction.

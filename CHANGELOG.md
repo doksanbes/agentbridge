@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — prerelease candidate
 
 - Add a Codex handoff skill and stdin-based session preview/apply flow with content-bound approval, automatic Git root detection, preserved context and instruction files, and prior-note backups. No model calls or transcript ingestion.
 - Validate synthetic handoffs and installed candidate archives across the six CI platforms; distinguish documented skill support from actual invocation and model behavior.
+
+- Add reusable main-only attestation dispatch with explicit version/source/archive/manifest approval; inspect actual archive contents and bind all three assets under a new source predicate. Preserve immutable v0.1.0 signatures.
+- Read CLI/generated-header version from installed package metadata and emit a canonical cross-platform package manifest.
 
 ## 0.1.0
 
