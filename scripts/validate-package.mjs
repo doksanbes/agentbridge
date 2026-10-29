@@ -9,6 +9,7 @@ import assert from 'node:assert/strict';
 import { buildPackage, packageFiles } from './package.mjs';
 import { isolatedEnv, npmCli, run } from './package-tools.mjs';
 
+const version = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version;
 const root = fileURLToPath(new URL('../', import.meta.url));
 const report = await buildPackage(root);
 const base = await mkdtemp(path.join(tmpdir(), 'AgentBridge clean install ü-'));
@@ -53,11 +54,11 @@ try {
   const shimRun = args => process.platform === 'win32'
     ? run(process.env.ComSpec ?? 'C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', `""${shim}" ${args.join(' ')}"`], consumer, env, 0, true)
     : run(shim, args, consumer, env);
-  assert.equal((await shimRun(['--version'])).trim(), '0.1.0');
+  assert.equal((await shimRun(['--version'])).trim(), version);
   assert.ok((await shimRun(['--help'])).includes('doctor'));
   // npm exec (the mechanism behind npx), with a separate empty consumer cache.
   env.NPM_CONFIG_CACHE = path.join(base, 'exec-cache');
-  assert.equal((await npmRun(['exec', '--yes', '--offline', '--ignore-scripts', `--package=${artifact}`, '--', 'agentbridge', '--version'])).trim(), '0.1.0');
+  assert.equal((await npmRun(['exec', '--yes', '--offline', '--ignore-scripts', `--package=${artifact}`, '--', 'agentbridge', '--version'])).trim(), version);
   const project = path.join(base, 'software project ü'); await mkdir(project);
   const cli = (args, expected = 0) => run(process.execPath, [path.join(installed, 'dist/cli.js'), ...args, '--project', project], consumer, env, expected);
   const git = args => run(gitPath, ['-c', 'core.hooksPath=.git/no-hooks', ...args], project, env);

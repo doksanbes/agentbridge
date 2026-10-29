@@ -91,7 +91,10 @@ export async function buildPackage(root) {
   await writeFile(archive + '.sha256', `${reports[0].sha256}  ${filename}\n`);
   const report = { filename, archive, sha256: reports[0].sha256, contentSha256: sha256(JSON.stringify(staged.files)),
     modes: reports[0].modes, reproducible: true, node: process.version, npm: npmVersion, os: process.platform, files: staged.files };
-  const { archive: _localPath, ...publicManifest } = report;
+  // Canonical public sidecar; host/toolchain details remain in local/CI reports.
+  const publicManifest = { schemaVersion: 1, name: staged.name, version: staged.version,
+    filename, sha256: report.sha256, contentSha256: report.contentSha256,
+    modes: report.modes, reproducible: true, files: staged.files };
   await writeFile(archive + '.manifest.json', JSON.stringify(publicManifest, null, 2) + '\n');
   return report;
 }

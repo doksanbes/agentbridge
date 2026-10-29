@@ -1,6 +1,6 @@
 # Experimental GitHub archive distribution
 
-This guide describes the experimental v0.1.0 archive intended for GitHub prerelease distribution. Check [GitHub Releases](https://github.com/doksanbes/agentbridge/releases) for the maintainer-published prerelease and its precompiled `agentbridge-0.1.0.tgz` asset. If the asset is not listed, it is not available through this channel. These instructions do not announce publication. Creating tags/releases, uploading assets and publishing to npm require separate approval; npm namespace ownership is not implied.
+This guide describes the experimental v0.2.0 archive intended for GitHub prerelease distribution. Check [GitHub Releases](https://github.com/doksanbes/agentbridge/releases) for the maintainer-published prerelease and its precompiled `agentbridge-0.2.0.tgz` asset. If the asset is not listed, it is not available through this channel. These instructions do not announce publication. Creating tags/releases, uploading assets and publishing to npm require separate approval; npm namespace ownership is not implied.
 
 | Approach | Value | Maintenance/security | Decision |
 | --- | --- | --- | --- |
@@ -15,7 +15,7 @@ Primary references: [npm tarball installation](https://docs.npmjs.com/cli/v11/co
 When the maintainer-published asset is available, obtain the precompiled `.tgz` rather than GitHub's automatic source-code archives. After checking its SHA-256 against a trusted value, run from its directory:
 
 ```sh
-npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.1.0.tgz
+npm install --global --offline --ignore-scripts --no-audit --no-fund ./agentbridge-0.2.0.tgz
 agentbridge --help
 ```
 
@@ -27,11 +27,11 @@ Installing a downloaded GitHub archive with npm is separate from npm registry in
 
 After the frozen development dependency installation, run `pnpm typecheck`, `pnpm build`, `pnpm test`, `node scripts/audit-publication.mjs`, `pnpm package:build`, and `pnpm validate:package`. Only maintainers build TypeScript. A nonstandard Node installation can set `AGENTBRIDGE_NPM_CLI` to its trusted `npm-cli.js`; no npm download is performed by packaging.
 
-Output is ignored `.cache/packages/agentbridge-0.1.0.tgz`, plus `.sha256` and `.manifest.json` sidecars. Use the supported `package:build` command rather than direct `npm pack` in a dirty checkout. Staging copies explicit regular inputs, rejects links/hard links, checks the static import set/shebang, strips scripts/development metadata and retains `private: true`. A new staging directory is required; extra `dist/` files are not copied. Root `files` is narrowed as defense in depth.
+Output is ignored `.cache/packages/agentbridge-0.2.0.tgz`, plus `.sha256` and `.manifest.json` sidecars. Use the supported `package:build` command rather than direct `npm pack` in a dirty checkout. Staging copies explicit regular inputs, rejects links/hard links, checks the static import set/shebang, strips scripts/development metadata and retains `private: true`. A new staging directory is required; extra `dist/` files are not copied. Root `files` is narrowed as defense in depth.
 
-The unreleased candidate installs **15 files** (published v0.1.0 remains 13): `package.json`, consumer `README.md` (from `docs/PACKAGE_README.md`), `LICENSE`, `SECURITY.md`, `THIRD_PARTY_NOTICES.md`, and `dist/{cli,codex,context,doctor,git,handoff,managed,safety,session,sync}.js`.
+The v0.2.0 candidate allowlist contains **15 files** (published v0.1.0 remains 13): `package.json`, consumer `README.md` (from `docs/PACKAGE_README.md`), `LICENSE`, `SECURITY.md`, `THIRD_PARTY_NOTICES.md`, and `dist/{cli,codex,context,doctor,git,handoff,managed,safety,session,sync}.js`.
 
-No TypeScript, declarations, compiler helpers, dependencies, pnpm metadata, lifecycle/build scripts, tests, examples, fixtures, chats, caches, Git data or local context are shipped. Node/npm/Git and development tools are not redistributed. Exclusions and legacy named overwrite approvals remain in effect; the unreleased session flow adds digest-bound approval for an entire reviewed proposal.
+No TypeScript, declarations, compiler helpers, dependencies, pnpm metadata, lifecycle/build scripts, tests, examples, fixtures, chats, caches, Git data or local context are shipped. Node/npm/Git and development tools are not redistributed. Exclusions and legacy named overwrite approvals remain in effect; the v0.2.0 session flow adds digest-bound approval for an entire reviewed proposal.
 
 ## Reproducibility and tests
 

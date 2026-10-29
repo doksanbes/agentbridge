@@ -2,9 +2,30 @@ name: Attested approved archive
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Reviewed numeric package version (without v)
+        type: string
+        required: true
+      source_commit:
+        description: Reviewed exact main commit; must equal this workflow commit
+        type: string
+        required: true
+      archive_sha256:
+        description: Reviewed reproducible archive SHA-256
+        type: string
+        required: true
+      manifest_sha256:
+        description: Reviewed canonical manifest SHA-256
+        type: string
+        required: true
 
 permissions:
   contents: read
+
+concurrency:
+  group: approved-release-attestation
+  cancel-in-progress: false
 
 jobs:
   attest:
@@ -16,22 +37,24 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - name: Checkout reviewed orchestration
+      - name: Checkout exact reviewed workflow and source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.sha }}
-          path: orchestration
-          persist-credentials: false
-      - name: Checkout exact approved source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: 1aa6cd22ae92dfba99df50f898234f460ccf96d3
           path: source
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '22.18.0'
           package-manager-cache: false
+      - name: Validate dispatch approval and require absent tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_SOURCE: ${{ inputs.source_commit }}
+          RELEASE_ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
+          RELEASE_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+        run: node source/scripts/attestation-policy.mjs gate source approval.json
       - name: Build and validate approved source
         working-directory: source
         run: |
@@ -40,26 +63,34 @@ jobs:
           pnpm typecheck
           pnpm build
           pnpm test
+          pnpm validate:workflow
+          node scripts/validate-session.mjs
           node scripts/audit-publication.mjs
           pnpm validate:package
-      - name: Enforce approved commit and exact digest
-        run: node orchestration/scripts/attestation-policy.mjs prepare source approved-source.json
-      - name: Attest build provenance
+      - name: Inspect actual archive and enforce approved source and manifest
+        run: node source/scripts/attestation-policy.mjs prepare source approval.json approved-source.json subjects.sha256
+      - name: Attest build provenance for exactly three assets
+        id: provenance
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-path: source/.cache/packages/agentbridge-0.1.0.tgz
+          subject-checksums: subjects.sha256
           create-storage-record: false
-      - name: Attest checked archive source binding
+      - name: Attest checked archive and manifest source binding
+        id: source-binding
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-path: source/.cache/packages/agentbridge-0.1.0.tgz
-          predicate-type: https://github.com/doksanbes/agentbridge/attestations/approved-source/v1
+          subject-checksums: subjects.sha256
+          predicate-type: https://github.com/doksanbes/agentbridge/attestations/approved-source/v2
           predicate-path: approved-source.json
           create-storage-record: false
-      - name: Verify both signatures and approved source binding
+      - name: Verify both signatures and source binding on every exact asset
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh attestation verify source/.cache/packages/agentbridge-0.1.0.tgz --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://slsa.dev/provenance/v1
-          gh attestation verify source/.cache/packages/agentbridge-0.1.0.tgz --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://github.com/doksanbes/agentbridge/attestations/approved-source/v1 --format json > verified-source.json
-          node orchestration/scripts/attestation-policy.mjs verify verified-source.json
+          set -euo pipefail
+          while read -r digest asset; do
+            printf '%s  %s\n' "$digest" "$asset" | sha256sum --check --strict
+            gh attestation verify "$asset" --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://slsa.dev/provenance/v1
+            gh attestation verify "$asset" --repo doksanbes/agentbridge --signer-workflow doksanbes/agentbridge/.github/workflows/attested-build.yml --signer-digest "$GITHUB_SHA" --predicate-type https://github.com/doksanbes/agentbridge/attestations/approved-source/v2 --format json > verified-source.json
+            node source/scripts/attestation-policy.mjs verify source approval.json verified-source.json
+          done < subjects.sha256

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
-import { CONTEXT, HANDOFF, TARGETS, initialContext, loadContext } from './context.js';
+import { CONTEXT, HANDOFF, TARGETS, VERSION, initialContext, loadContext } from './context.js';
 import { ProjectGit, renderProgress } from './git.js';
 import { applySync, planSync } from './sync.js';
 import { assertSafeText, projectRoot, readText, writeText } from './safety.js';
@@ -11,7 +11,7 @@ import { inspectSession, reviewedSession, sessionProject } from './session.js';
 import { installCodexSkill } from './codex.js';
 import { MAX_TEXT } from './safety.js';
 
-const HELP = `AgentBridge 0.1.0 — offline project context handoffs
+const HELP = `AgentBridge ${VERSION} — offline project context handoffs
 
 Usage: agentbridge <command> [options]
 
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
   }, allowPositionals: true, strict: true }); }
   catch { throw new Error('Invalid command-line arguments. Run agentbridge --help.'); }
   const { values, positionals } = parsed;
-  if (values.version) { console.log('0.1.0'); return; }
+  if (values.version) { console.log(VERSION); return; }
   if (values.help || !positionals.length) { console.log(HELP); return; }
   if (positionals.length !== 1) throw new Error('Expected one command. Use --project for the project directory.');
   const command = positionals[0]!;
