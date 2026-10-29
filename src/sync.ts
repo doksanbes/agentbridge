@@ -1,4 +1,5 @@
-import { open, unlink } from 'node:fs/promises';
+import { mkdir, open, unlink } from 'node:fs/promises';
+import path from 'node:path';
 import { CONTEXT, HANDOFF, STATE, TARGETS, loadContext, renderInstructions } from './context.js';
 import type { Target } from './context.js';
 import type { ProjectGit } from './git.js';
@@ -14,7 +15,8 @@ export interface PlannedFile {
   previousHash?: string;
   nextHash: string;
 }
-export interface SyncPlan { files: PlannedFile[]; inputs: Record<string, string | undefined> }
+export interface SourceWrite { file: string; previous: string | undefined; content: string }
+export interface SyncPlan { files: PlannedFile[]; inputs: Record<string, string | undefined>; sources?: SourceWrite[] }
 
 function parseState(text: string | undefined): State {
   if (text === undefined) return { version: 1, outputs: {} };
@@ -26,8 +28,8 @@ function parseState(text: string | undefined): State {
   } catch { throw new Error('Invalid sync state. Preserve it for diagnosis; restore a valid state or remove it to treat outputs as unmanaged.'); }
 }
 
-export async function planSync(git: ProjectGit): Promise<SyncPlan> {
-  const { context, handoff, rawContext, rawHandoff } = await loadContext(git);
+export async function planSync(git: ProjectGit, proposed?: { context: string; handoff: string; rawContext: string | undefined; rawHandoff: string | undefined }): Promise<SyncPlan> {
+  const { context, handoff, rawContext, rawHandoff } = proposed ?? await loadContext(git);
   await git.assertControl(STATE);
   const stateText = await readText(git.root, STATE);
   const state = parseState(stateText);
@@ -44,12 +46,18 @@ export async function planSync(git: ProjectGit): Promise<SyncPlan> {
     files.push({ file, status, content, nextHash: digest(content),
       ...(previous === undefined ? {} : { previous, previousHash: digest(previous) }) });
   }
-  return { files, inputs };
+  return { files, inputs, ...(proposed ? { sources: [
+    { file: CONTEXT, previous: rawContext, content: context },
+    { file: HANDOFF, previous: rawHandoff, content: handoff },
+  ].filter(f => f.content !== f.previous) } : {}) };
 }
 
 export async function applySync(git: ProjectGit, plan: SyncPlan, approvals: string[]): Promise<void> {
   const blocked = plan.files.filter(f => f.previous !== undefined && f.status !== 'unchanged' && !approvals.includes(f.file));
   if (blocked.length) throw new Error(`Existing instructions require explicit approval: --approve-overwrite ${blocked.map(f => f.file).join(',')}. Preview with sync --dry-run first.`);
+  // Preflight sources before creating the control directory for a new project.
+  for (const file of [CONTEXT, HANDOFF, STATE]) await git.assertControl(file);
+  await mkdir(path.dirname(await safePath(git.root, '.agentbridge/lock')), { recursive: true });
   const lockPath = await safePath(git.root, '.agentbridge/lock');
   let lock;
   try { lock = await open(lockPath, 'wx', 0o600); }
@@ -65,13 +73,15 @@ export async function applySync(git: ProjectGit, plan: SyncPlan, approvals: stri
     }
     // Back up every replaced instruction before writing any output. Backups contain
     // user content, are private-mode files, and are never read into generated context.
-    for (const file of plan.files) {
-      if (file.status === 'unchanged' || file.previous === undefined) continue;
-      const backup = `.agentbridge/backups/${file.previousHash}/${file.file}`;
+    const replacements = [...plan.files.filter(f => f.status !== 'unchanged'), ...(plan.sources ?? [])];
+    for (const file of replacements) {
+      if (file.previous === undefined) continue;
+      const backup = `.agentbridge/backups/${digest(file.previous)}/${file.file}`;
       const existing = await readText(git.root, backup);
       if (existing !== undefined && existing !== file.previous) throw new Error('Backup integrity conflict.');
       if (existing === undefined) await writeText(git.root, backup, file.previous);
     }
+    for (const file of plan.sources ?? []) await writeText(git.root, file.file, file.content, file.previous);
     for (const file of plan.files) if (file.status !== 'unchanged') {
       await writeText(git.root, file.file, file.content, file.previous);
     }

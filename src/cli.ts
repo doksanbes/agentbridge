@@ -7,6 +7,9 @@ import { assertSafeText, projectRoot, readText, writeText } from './safety.js';
 import { AGENTS, renderHandoff } from './handoff.js';
 import type { Agent } from './handoff.js';
 import { diagnoseProject, renderDoctor } from './doctor.js';
+import { inspectSession, reviewedSession, sessionProject } from './session.js';
+import { installCodexSkill } from './codex.js';
+import { MAX_TEXT } from './safety.js';
 
 const HELP = `AgentBridge 0.1.0 — offline project context handoffs
 
@@ -19,12 +22,17 @@ Usage: agentbridge <command> [options]
   sync       Generate AGENTS.md, CLAUDE.md, GEMINI.md from reviewed context
   status     Check generated instructions for drift (read-only)
   doctor     Diagnose project setup and sync blockers without changing files
+  session    Inspect, preview, then approve a session handoff (JSON on stdin)
+  install-skill  Install the Codex handoff skill once; never overwrite a skill
 
 Options:
   --project <directory>       Project directory (default: current directory)
   --dry-run                   Preview writes without changing any files
   --check                     Read-only sync check; exit 1 for drift
   --json                      Machine-readable sync/status/doctor output
+  --inspect                   Collect session facts without reading stdin
+  --approve <digest>          Apply the exact reviewed session preview
+  --skill-home <directory>    Skill installation home (default: user home)
   --approve-overwrite <names>  Approve named existing files, comma-separated
                               Example: AGENTS.md,CLAUDE.md,GEMINI.md
   --save                      Save manual notes and current Git facts (handoff)
@@ -50,6 +58,7 @@ async function main(): Promise<void> {
     blocked: { type: 'string', multiple: true }, 'replace-note': { type: 'boolean' },
     from: { type: 'string' }, to: { type: 'string' }, json: { type: 'boolean' },
     help: { type: 'boolean' }, version: { type: 'boolean' },
+    inspect: { type: 'boolean' }, approve: { type: 'string' }, 'skill-home': { type: 'string' },
   }, allowPositionals: true, strict: true }); }
   catch { throw new Error('Invalid command-line arguments. Run agentbridge --help.'); }
   const { values, positionals } = parsed;
@@ -62,9 +71,36 @@ async function main(): Promise<void> {
     handoff: ['project', 'dry-run', 'save', 'done', 'next', 'blocked', 'replace-note', 'from', 'to'],
     sync: ['project', 'dry-run', 'check', 'approve-overwrite', 'json'], status: ['project', 'json'],
     doctor: ['project', 'json'],
+    session: ['project', 'inspect', 'approve'],
+    'install-skill': ['skill-home', 'dry-run'],
   };
   if (!permitted[command]) throw new Error('Unknown command. Run agentbridge --help.');
   for (const key of Object.keys(values)) if (!permitted[command]!.includes(key)) throw new Error(`Option --${key} does not apply to ${command}.`);
+  if (command === 'install-skill') {
+    console.log(await installCodexSkill(values['skill-home'], values['dry-run']));
+    return;
+  }
+  if (command === 'session') {
+    if (values.inspect && values.approve !== undefined) throw new Error('Inspection cannot apply an approval.');
+    const git = await sessionProject(values.project ?? process.cwd(), values.project !== undefined);
+    if (values.inspect) console.log(JSON.stringify(await inspectSession(git), null, 2));
+    else {
+      if (process.stdin.isTTY) throw new Error('Send the reviewed session JSON on stdin; use --inspect to collect facts.');
+      const chunks: Buffer[] = [];
+      let bytes = 0;
+      for await (const chunk of process.stdin) {
+        const buffer = Buffer.from(chunk);
+        bytes += buffer.length;
+        if (bytes > MAX_TEXT) throw new Error('Session input is too large. Keep the handoff concise.');
+        chunks.push(buffer);
+      }
+      let input;
+      try { input = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks)); }
+      catch { throw new Error('Session input must be valid UTF-8.'); }
+      console.log(JSON.stringify(await reviewedSession(git, input, values.approve), null, 2));
+    }
+    return;
+  }
   if (command === 'doctor') {
     const report = await diagnoseProject(values.project ?? process.cwd());
     console.log(values.json ? JSON.stringify(report, null, 2) : renderDoctor(report));

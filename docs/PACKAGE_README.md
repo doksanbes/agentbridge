@@ -6,6 +6,12 @@ This guide covers the experimental v0.1.0 npm-format archive intended for GitHub
 
 When available, obtain the precompiled `.tgz` asset, not GitHub's automatically generated source-code ZIP or tarball, which does not include the compiled CLI. Use npm to install the downloaded file locally. This is separate from npm registry installation: do not substitute an unqualified `npm install --global agentbridge` or registry-based npx command. The package name is local metadata, not proof of npm namespace ownership; registry publication requires separate verification and approval.
 
+## Codex handoff skill — unreleased
+
+The feature branch adds a one-time `agentbridge install-skill` setup. In Codex, select `$agentbridge-handoff to Claude Code` (or Gemini CLI), review the proposed summary and file changes, then approve. The skill handles project detection, context initialization, notes and synchronization. **This is not in the published v0.1.0 archive; bare `/handoff` is not supported in Codex.** No transcript storage or new inference API is used; the host agent drafts from the active session.
+
+See the [candidate feature guide](https://github.com/doksanbes/agentbridge/blob/feat/reviewed-session-handoff/docs/SESSION_HANDOFF.md) for setup. Existing manual commands below continue to work. Actual Claude/Gemini loading and desktop interactive behavior remain unverified.
+
 ## Install a reviewed archive
 
 Requires Node.js 22.18+ or 24 with npm. Git is needed for discovery/progress; a plain directory supports basic context with reduced functionality. No pnpm, TypeScript, clone, agent account or API key is needed.

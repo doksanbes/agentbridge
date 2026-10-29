@@ -8,7 +8,7 @@
   "repository": { "type": "git", "url": "https://github.com/doksanbes/agentbridge.git" },
   "engines": { "node": ">=22.18.0" },
   "bin": { "agentbridge": "dist/cli.js" },
-  "files": ["dist/cli.js", "dist/context.js", "dist/doctor.js", "dist/git.js", "dist/handoff.js", "dist/managed.js", "dist/safety.js", "dist/sync.js", "README.md", "LICENSE", "SECURITY.md", "THIRD_PARTY_NOTICES.md"],
+  "files": ["dist/cli.js", "dist/codex.js", "dist/context.js", "dist/doctor.js", "dist/git.js", "dist/handoff.js", "dist/managed.js", "dist/safety.js", "dist/session.js", "dist/sync.js", "README.md", "LICENSE", "SECURITY.md", "THIRD_PARTY_NOTICES.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

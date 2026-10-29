@@ -25,7 +25,7 @@ test('package staging is exact, strips development metadata/hooks and excludes d
   pkg.scripts.prepare = 'MUST_NOT_EXECUTE';
   await writeFile(path.join(source, 'package.json'), JSON.stringify(pkg));
   const report = await stagePackage(source, stage);
-  assert.equal(report.files.length, 13);
+  assert.equal(report.files.length, 15);
   assert.deepEqual(report.files.map(f => f.path), packageFiles);
   const manifest = JSON.parse(await readFile(path.join(stage, 'package.json'), 'utf8'));
   assert.equal(manifest.scripts, undefined); assert.equal(manifest.devDependencies, undefined);

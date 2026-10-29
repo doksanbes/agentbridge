@@ -4,13 +4,15 @@ AgentBridge 0.1.x is experimental. Security fixes are considered for the current
 
 ## Boundaries
 
-- Instruction replacements always require explicit filename approval. State files never authorize replacement. Backups preserve overwritten UTF-8 text.
+- Legacy sync instruction replacements require explicit filename approval. The unreleased session flow requires approval of a digest binding the exact preview, named replacements, project root and visible Git facts. State files never authorize replacement. Backups preserve overwritten UTF-8 text and prior session notes.
 - Ignored paths, built-in sensitive filenames and `.agentbridgeignore` exclusions are removed before inventory/progress output. No source-file contents, patches, commit messages or authors are collected.
 - Symlinks/junctions in input/output paths and hard-linked context files are rejected. Inputs are bounded and must be valid UTF-8.
 - Credential-pattern detection and `@file` blocking reduce accidental propagation. They cannot recognize every secret, private statement or indirect instruction.
 - Existing instruction files are inspected for change detection, same-file preservation of user sections, and backups. They are never imported into other targets. Existing imports outside the managed section remain unchanged and are never followed by AgentBridge. Backups may contain sensitive text and should be excluded from version control and protected with local permissions.
 - Managed sections require unique standalone markers. Damaged boundaries or edited legacy outputs stop for manual repair. Marker declarations inside canonical context or handoff notes are refused.
 - Sensitive-path exclusions include common auth/service-account files, private-key formats, kubeconfig and Terraform state/variable files. Patterns remain heuristic; filename variation can evade them.
+- The Codex skill must show the proposed summary and file changes and wait for a separate human approval. A digest prevents accidental/stale application; it cannot prove a human consented or prevent an agent from computing approval itself. Skill compliance and model behavior are not enforced by this CLI. The host agent can see the returned local context under its own privacy settings. No inference service or transcript access is added.
+- Session previews refuse credential-like existing text and implicit imports. Git facts contain filtered paths/status, not file-content hashes; a token does not certify that all source bytes or test outcomes remain current. Reverify facts before acting.
 
 Use trusted Node and Git binaries on PATH and a trusted local filesystem. Do not run apply concurrently with untrusted processes. Filesystem-wide transactions, adversarial concurrent mutation protection and Windows ACL management are not provided. No automatic cleanup deletes backups or context. Review saved notes before sharing or committing them.
 

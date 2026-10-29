@@ -81,11 +81,27 @@ try {
   const edited = original.replace('Add an offline fixture', 'LOCAL EDIT'); await writeFile(path.join(project, 'CLAUDE.md'), edited);
   assert.ok((await cli(['sync', '--dry-run'])).includes('CLAUDE.md: conflict'));
   await cli(['sync'], 2); assert.equal(await readFile(path.join(project, 'CLAUDE.md'), 'utf8'), edited);
+  const candidate = JSON.stringify({ to: 'gemini', next: ['Review the managed edit before continuing.'] });
+  const sessionRun = async (args, input) => {
+    // run() intentionally accepts no stdin; invoke the installed module through a
+    // tiny Node wrapper with fixed data, bypassing shell interpolation entirely.
+    const wrapper = path.join(base, 'session-consumer.mjs');
+    await writeFile(wrapper, `import { spawnSync } from 'node:child_process';\nconst r = spawnSync(process.execPath, ${JSON.stringify([path.join(installed, 'dist/cli.js'), 'session', '--project', project, ...args])}, {input:${JSON.stringify(input)}, encoding:'utf8', windowsHide:true});\nprocess.stdout.write(r.stdout); process.stderr.write(r.stderr); process.exitCode=r.status ?? 2;\n`);
+    return run(process.execPath, [wrapper], consumer, env);
+  };
+  const sessionPreview = JSON.parse(await sessionRun([], candidate));
+  assert.equal(sessionPreview.applied, false);
+  assert.equal(sessionPreview.files.find(f => f.file === 'CLAUDE.md').status, 'conflict');
+  const sessionApplied = JSON.parse(await sessionRun(['--approve', sessionPreview.approval], candidate));
+  assert.equal(sessionApplied.applied, true);
+  const skillHome = path.join(base, 'skill-home'); await mkdir(skillHome);
+  await run(process.execPath, [path.join(installed, 'dist/cli.js'), 'install-skill', '--skill-home', skillHome], consumer, env);
+  assert.ok((await readFile(path.join(skillHome, '.agents/skills/agentbridge-handoff/SKILL.md'), 'utf8')).includes('agentbridge session --inspect'));
   assert.equal(requests, 0, 'Package validation attempted network access.');
   const result = { node: process.version, npm: report.npm, os: process.platform, archiveSha256: report.sha256,
     contentSha256: report.contentSha256, archiveModes: report.modes,
     packageFiles: inventory, repeatedPackIdentical: report.reproducible, installedShim: true, npmExec: true,
-    freshCache: true, runtimeDependencies: 0, networkRequests: requests, workflow: 'init/discover/handoff/preview/approval/sync/status/doctor/conflict passed' };
+    freshCache: true, runtimeDependencies: 0, networkRequests: requests, workflow: 'init/discover/handoff/preview/approval/sync/status/doctor/conflict/session/skill passed' };
   await writeFile(path.join(root, '.cache/package-validation.json'), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify(result, null, 2));
 } finally {

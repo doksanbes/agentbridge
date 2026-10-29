@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## Unreleased
+
+- Add a Codex handoff skill and stdin-based session preview/apply flow with content-bound approval, automatic Git root detection, preserved context and instruction files, and prior-note backups. No model calls or transcript ingestion.
+- Validate synthetic handoffs and installed candidate archives across the six CI platforms; distinguish documented skill support from actual invocation and model behavior.
+
+## 0.1.0
 
 - Prepare an unpublished, repeatable 13-file npm-format archive with no runtime dependencies or installation hooks; validate isolated offline installation, command shims and handoff safety on all CI platforms. Keep npm publication disabled.
 

@@ -31,5 +31,6 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - run: pnpm validate:workflow
+      - run: node scripts/validate-session.mjs
       - run: node scripts/audit-publication.mjs
       - run: pnpm validate:package
